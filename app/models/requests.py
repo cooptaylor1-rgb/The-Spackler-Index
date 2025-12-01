@@ -1,7 +1,7 @@
 """Request and response models for API endpoints."""
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal
 
 from .golfer import GolferProfile, CourseSetup, ScoringTarget, EventStructure
 from .team import TeamProfile, BestBallTarget, TeamEventStructure
@@ -303,11 +303,9 @@ class ConsecutiveScoresProbabilityRequest(BaseModel):
         ge=1,
         le=100
     )
-    holes_per_round: int = Field(
+    holes_per_round: Literal[9, 18] = Field(
         default=18,
-        description="Number of holes per round (9 or 18)",
-        ge=9,
-        le=18
+        description="Number of holes per round (9 or 18)"
     )
 
 

@@ -409,7 +409,15 @@ def compute_consecutive_in_n_matches_probability(
     Compute the probability of achieving at least one streak of N consecutive
     target scores within M total matches.
     
-    Uses dynamic programming to calculate exact probability.
+    Uses dynamic programming with Markov chain approach.
+    
+    The recurrence relation for f(n) = P(no k consecutive successes in n trials):
+    f(n) = q*f(n-1) + p*q*f(n-2) + p^2*q*f(n-3) + ... + p^(k-1)*q*f(n-k)
+    
+    This is because to have no k consecutive successes ending at position n:
+    - Either position n is a failure (prob q), and positions 1 to n-1 have no k consec
+    - Or positions n-(j-1) to n are all successes (j < k), position n-j is failure,
+      and positions 1 to n-j-1 have no k consecutive successes
     
     Args:
         single_round_prob: Probability of success in a single round
@@ -420,68 +428,54 @@ def compute_consecutive_in_n_matches_probability(
         Probability of having at least one streak of N consecutive successes in M matches
     
     Examples:
-        >>> compute_consecutive_in_n_matches_probability(0.3, 3, 10)
-        # Probability of at least 3 in a row somewhere in 10 matches
+        >>> compute_consecutive_in_n_matches_probability(0.5, 3, 5)
+        # Probability of at least 3 in a row somewhere in 5 matches
     """
     if consecutive_count <= 0:
         return 1.0
     if consecutive_count > total_matches:
         return 0.0
+    if single_round_prob == 0:
+        return 0.0
+    if single_round_prob == 1:
+        return 1.0
     
     n = total_matches
     k = consecutive_count
     p = single_round_prob
     q = 1 - p
     
-    # dp[i] = probability of NOT having k consecutive successes in first i matches
-    # We want 1 - dp[n]
-    dp = [0.0] * (n + 1)
-    dp[0] = 1.0  # No matches yet, haven't failed
-    
-    for i in range(1, n + 1):
-        if i < k:
-            # Not enough matches yet for k consecutive
-            # We can either fail this match, or succeed but not have k in a row yet
-            dp[i] = dp[i-1]  # All outcomes are still "no streak of k"
-        else:
-            # Probability of ending with a failure at position i
-            dp[i] = q * dp[i-1]
-            
-            # Probability of having exactly k-1 successes before position i,
-            # then success at i, then a failure at i-k (if i > k)
-            for j in range(1, k):
-                if i - j >= 1:
-                    # Probability of j consecutive successes ending at i, 
-                    # preceded by a failure
-                    pass
-            
-            # Add contribution from sequences that have success streaks less than k
-            # ending at position i
-            for streak in range(1, k):
-                if i - streak >= 1:
-                    dp[i] += (p ** streak) * q * dp[i - streak - 1] if i - streak - 1 >= 0 else 0
-                elif i - streak == 0:
-                    dp[i] += (p ** streak) * q if streak < k else 0
-    
-    # Recalculate using a cleaner approach
-    # Use the formula for probability of no run of k consecutive successes
-    import numpy as np
-    
-    # Alternative approach using Markov chain / recursion
-    # f(n) = probability of no k consecutive successes in n trials
-    # f(n) = q*f(n-1) + p*q*f(n-2) + p^2*q*f(n-3) + ... + p^(k-1)*q*f(n-k)
-    
+    # f[i] = probability of NOT having k consecutive successes in first i matches
     f = [0.0] * (n + 1)
-    f[0] = 1.0
+    f[0] = 1.0  # Base case: no trials, no streak (trivially true)
     
     for i in range(1, n + 1):
-        for j in range(1, min(k, i) + 1):
-            if j < k:
-                if i - j - 1 >= 0:
-                    f[i] += (p ** (j - 1)) * q * f[i - j]
-                elif i == j:
-                    f[i] += (p ** (j - 1)) * q
         if i < k:
-            f[i] += p ** i  # All successes so far, but less than k
+            # With fewer than k trials, we can't have a streak of k
+            # All sequences that don't have k consecutive count
+            # f[i] = sum of: (j successes ending at i) * (failure at i-j) * f[i-j-1]
+            #        + all i successes (which is fine since i < k)
+            for j in range(0, i):
+                # j successes at end (positions i-j+1 to i), failure at i-j
+                if i - j - 1 >= 0:
+                    f[i] += (p ** j) * q * f[i - j - 1]
+                else:
+                    # i - j - 1 < 0 means j == i, so all i positions are part of this
+                    f[i] += (p ** j) * q  # but j < i here, so this won't happen
+            # Add the case where all i trials are successes (allowed since i < k)
+            f[i] += p ** i
+        else:
+            # i >= k: We need to avoid k consecutive successes
+            # Ending patterns: failure at position i, or 1 to k-1 successes at end
+            # followed by failure
+            for j in range(0, k):
+                # j successes at end (positions i-j+1 to i), failure at i-j
+                if i - j - 1 >= 0:
+                    f[i] += (p ** j) * q * f[i - j - 1]
+                elif i - j == 0:
+                    # Failure at position 0 (doesn't exist), j = i
+                    # This means j successes fill all i positions - but j < k and i >= k
+                    # So this case won't trigger since j < k <= i means i - j > 0
+                    pass
     
     return 1.0 - f[n]
