@@ -326,3 +326,162 @@ def get_standard_milestones(expected_score: float) -> list[int]:
         relevant_milestones.append(ambitious)
     
     return sorted(relevant_milestones, reverse=True)
+
+
+def compute_nine_hole_expected_score(
+    handicap_index: float,
+    course_setup: CourseSetup
+) -> float:
+    """
+    Compute the expected gross score for 9 holes.
+    
+    For 9-hole rounds, we scale the handicap proportionally.
+    Expected 9-hole score = (par/2) + (course_handicap/2)
+    
+    Args:
+        handicap_index: The golfer's USGA Handicap Index
+        course_setup: The course configuration (rating, slope, par)
+    
+    Returns:
+        The expected gross score for 9 holes
+    """
+    full_course_handicap = compute_course_handicap(
+        handicap_index,
+        course_setup.course_rating,
+        course_setup.slope_rating,
+        course_setup.par
+    )
+    # For 9 holes, use half the course handicap and half the par
+    nine_hole_par = course_setup.par / 2
+    nine_hole_ch = full_course_handicap / 2
+    return nine_hole_par + nine_hole_ch
+
+
+def estimate_nine_hole_score_std(handicap_index: float) -> float:
+    """
+    Estimate the standard deviation of scoring for 9 holes.
+    
+    For 9 holes, the variance is roughly half of 18-hole variance,
+    so std dev is scaled by sqrt(0.5) ≈ 0.707.
+    
+    Args:
+        handicap_index: The golfer's USGA Handicap Index
+    
+    Returns:
+        Estimated standard deviation of 9-hole scores
+    """
+    eighteen_hole_std = estimate_score_std(handicap_index)
+    return eighteen_hole_std * 0.707  # sqrt(0.5) for 9 holes
+
+
+def compute_consecutive_scores_probability(
+    single_round_prob: float,
+    consecutive_count: int
+) -> float:
+    """
+    Compute the probability of achieving a target score in N consecutive rounds.
+    
+    Since rounds are assumed independent:
+    P(N consecutive successes) = p^N
+    
+    Args:
+        single_round_prob: Probability of success in a single round
+        consecutive_count: Number of consecutive rounds required
+    
+    Returns:
+        Probability of achieving target score in all N consecutive rounds
+    
+    Examples:
+        >>> compute_consecutive_scores_probability(0.2, 3)
+        0.008  # 0.2^3
+    """
+    if consecutive_count <= 0:
+        return 1.0
+    return single_round_prob ** consecutive_count
+
+
+def compute_consecutive_in_n_matches_probability(
+    single_round_prob: float,
+    consecutive_count: int,
+    total_matches: int
+) -> float:
+    """
+    Compute the probability of achieving at least one streak of N consecutive
+    target scores within M total matches.
+    
+    Uses dynamic programming to calculate exact probability.
+    
+    Args:
+        single_round_prob: Probability of success in a single round
+        consecutive_count: Length of consecutive streak required (N)
+        total_matches: Total number of matches played (M)
+    
+    Returns:
+        Probability of having at least one streak of N consecutive successes in M matches
+    
+    Examples:
+        >>> compute_consecutive_in_n_matches_probability(0.3, 3, 10)
+        # Probability of at least 3 in a row somewhere in 10 matches
+    """
+    if consecutive_count <= 0:
+        return 1.0
+    if consecutive_count > total_matches:
+        return 0.0
+    
+    n = total_matches
+    k = consecutive_count
+    p = single_round_prob
+    q = 1 - p
+    
+    # dp[i] = probability of NOT having k consecutive successes in first i matches
+    # We want 1 - dp[n]
+    dp = [0.0] * (n + 1)
+    dp[0] = 1.0  # No matches yet, haven't failed
+    
+    for i in range(1, n + 1):
+        if i < k:
+            # Not enough matches yet for k consecutive
+            # We can either fail this match, or succeed but not have k in a row yet
+            dp[i] = dp[i-1]  # All outcomes are still "no streak of k"
+        else:
+            # Probability of ending with a failure at position i
+            dp[i] = q * dp[i-1]
+            
+            # Probability of having exactly k-1 successes before position i,
+            # then success at i, then a failure at i-k (if i > k)
+            for j in range(1, k):
+                if i - j >= 1:
+                    # Probability of j consecutive successes ending at i, 
+                    # preceded by a failure
+                    pass
+            
+            # Add contribution from sequences that have success streaks less than k
+            # ending at position i
+            for streak in range(1, k):
+                if i - streak >= 1:
+                    dp[i] += (p ** streak) * q * dp[i - streak - 1] if i - streak - 1 >= 0 else 0
+                elif i - streak == 0:
+                    dp[i] += (p ** streak) * q if streak < k else 0
+    
+    # Recalculate using a cleaner approach
+    # Use the formula for probability of no run of k consecutive successes
+    import numpy as np
+    
+    # Alternative approach using Markov chain / recursion
+    # f(n) = probability of no k consecutive successes in n trials
+    # f(n) = q*f(n-1) + p*q*f(n-2) + p^2*q*f(n-3) + ... + p^(k-1)*q*f(n-k)
+    
+    f = [0.0] * (n + 1)
+    f[0] = 1.0
+    
+    for i in range(1, n + 1):
+        for j in range(1, min(k, i) + 1):
+            if j < k:
+                if i - j - 1 >= 0:
+                    f[i] += (p ** (j - 1)) * q * f[i - j]
+                elif i == j:
+                    f[i] += (p ** (j - 1)) * q
+        if i < k:
+            f[i] += p ** i  # All successes so far, but less than k
+    
+    return 1.0 - f[n]

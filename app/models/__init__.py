@@ -14,6 +14,8 @@ from .requests import (
     TeamBestBallSingleRoundResponse,
     TeamBestBallMultiRoundRequest,
     TeamBestBallMultiRoundResponse,
+    ConsecutiveScoresProbabilityRequest,
+    ConsecutiveScoresProbabilityResponse,
 )
 
 __all__ = [
@@ -39,4 +41,6 @@ __all__ = [
     "TeamBestBallSingleRoundResponse",
     "TeamBestBallMultiRoundRequest",
     "TeamBestBallMultiRoundResponse",
+    "ConsecutiveScoresProbabilityRequest",
+    "ConsecutiveScoresProbabilityResponse",
 ]

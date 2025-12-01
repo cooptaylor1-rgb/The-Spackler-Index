@@ -215,3 +215,84 @@ class TestTeamBestBallMultiRoundEndpoint:
         assert "probability_at_least_once_in_event" in data
         assert "probability_at_least_min_success_rounds" in data
         assert data["handicap_allowance_percent"] == 90.0
+
+
+class TestConsecutiveScoresEndpoint:
+    """Tests for consecutive scores probability endpoint."""
+
+    def test_consecutive_scores_18_hole(self, client):
+        """Test consecutive scores calculation for 18-hole rounds."""
+        response = client.post(
+            "/api/golf/probability/consecutive",
+            json={
+                "golfer": {"handicap_index": 15.0},
+                "course": {
+                    "course_name": "Test Course",
+                    "tee_name": "White",
+                    "par": 72,
+                    "course_rating": 72.5,
+                    "slope_rating": 130
+                },
+                "target": {"target_score": 85},
+                "consecutive_count": 3,
+                "holes_per_round": 18
+            }
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["holes_per_round"] == 18
+        assert data["consecutive_count"] == 3
+        assert "single_round_probability" in data
+        assert "probability_all_consecutive" in data
+        assert data["probability_all_consecutive"] <= data["single_round_probability"]
+
+    def test_consecutive_scores_9_hole(self, client):
+        """Test consecutive scores calculation for 9-hole rounds."""
+        response = client.post(
+            "/api/golf/probability/consecutive",
+            json={
+                "golfer": {"handicap_index": 15.0},
+                "course": {
+                    "course_name": "Test Course",
+                    "tee_name": "White",
+                    "par": 72,
+                    "course_rating": 72.5,
+                    "slope_rating": 130
+                },
+                "target": {"target_score": 42},
+                "consecutive_count": 3,
+                "holes_per_round": 9
+            }
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["holes_per_round"] == 9
+        # 9-hole expected score should be lower than 18-hole
+        assert data["expected_score"] < 50
+
+    def test_consecutive_scores_with_total_matches(self, client):
+        """Test consecutive scores with total matches specified."""
+        response = client.post(
+            "/api/golf/probability/consecutive",
+            json={
+                "golfer": {"handicap_index": 15.0},
+                "course": {
+                    "course_name": "Test Course",
+                    "tee_name": "White",
+                    "par": 72,
+                    "course_rating": 72.5,
+                    "slope_rating": 130
+                },
+                "target": {"target_score": 42},
+                "consecutive_count": 3,
+                "holes_per_round": 9,
+                "total_matches": 10
+            }
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total_matches"] == 10
+        assert "probability_streak_in_matches" in data
+        assert data["probability_streak_in_matches"] is not None
+        # Streak probability should be higher than all consecutive
+        assert data["probability_streak_in_matches"] >= data["probability_all_consecutive"]

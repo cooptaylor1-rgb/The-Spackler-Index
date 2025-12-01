@@ -313,3 +313,69 @@ class TestGetStandardMilestones:
         # and 105 is too easy
         assert all(m >= 70 for m in milestones)
         assert all(m <= 100 for m in milestones)
+
+
+class TestNineHoleFunctions:
+    """Tests for 9-hole scoring functions."""
+
+    def test_nine_hole_expected_score(self):
+        """Test 9-hole expected score is half of 18-hole."""
+        from app.services.probability import compute_nine_hole_expected_score
+        from app.models import CourseSetup
+        
+        course = CourseSetup(
+            course_name="Test Course",
+            tee_name="White",
+            par=72,
+            course_rating=72.5,
+            slope_rating=130
+        )
+        nine_hole_expected = compute_nine_hole_expected_score(15.0, course)
+        # Should be roughly half of 18-hole expected score
+        assert 40 < nine_hole_expected < 50
+
+    def test_nine_hole_std(self):
+        """Test 9-hole std is scaled appropriately."""
+        from app.services.probability import estimate_nine_hole_score_std
+        
+        nine_hole_std = estimate_nine_hole_score_std(15.0)
+        # Should be roughly 0.707 times the 18-hole std (3.5)
+        expected_std = 3.5 * 0.707
+        assert abs(nine_hole_std - expected_std) < 0.1
+
+
+class TestConsecutiveScoresFunctions:
+    """Tests for consecutive scores probability functions."""
+
+    def test_consecutive_probability_basic(self):
+        """Test basic consecutive probability calculation."""
+        from app.services.probability import compute_consecutive_scores_probability
+        
+        # p^3 = 0.2^3 = 0.008
+        prob = compute_consecutive_scores_probability(0.2, 3)
+        assert abs(prob - 0.008) < 0.0001
+
+    def test_consecutive_probability_single(self):
+        """Test consecutive probability for single round equals single prob."""
+        from app.services.probability import compute_consecutive_scores_probability
+        
+        prob = compute_consecutive_scores_probability(0.3, 1)
+        assert abs(prob - 0.3) < 0.0001
+
+    def test_consecutive_probability_zero(self):
+        """Test consecutive probability with zero base probability."""
+        from app.services.probability import compute_consecutive_scores_probability
+        
+        prob = compute_consecutive_scores_probability(0.0, 3)
+        assert prob == 0.0
+
+    def test_consecutive_in_matches(self):
+        """Test probability of streak within multiple matches."""
+        from app.services.probability import compute_consecutive_in_n_matches_probability
+        
+        # With high single round prob, should have good chance of streak
+        prob = compute_consecutive_in_n_matches_probability(0.5, 2, 10)
+        assert 0 < prob < 1
+        # Probability should increase with more matches
+        prob_more = compute_consecutive_in_n_matches_probability(0.5, 2, 20)
+        assert prob_more > prob

@@ -9,6 +9,10 @@ from .probability import (
     binomial_tail,
     simulate_individual_scores,
     get_standard_milestones,
+    compute_nine_hole_expected_score,
+    estimate_nine_hole_score_std,
+    compute_consecutive_scores_probability,
+    compute_consecutive_in_n_matches_probability,
 )
 
 from .team_probability import (
@@ -27,6 +31,10 @@ __all__ = [
     "binomial_tail",
     "simulate_individual_scores",
     "get_standard_milestones",
+    "compute_nine_hole_expected_score",
+    "estimate_nine_hole_score_std",
+    "compute_consecutive_scores_probability",
+    "compute_consecutive_in_n_matches_probability",
     # Team probability functions
     "compute_player_parameters",
     "simulate_team_bestball_round_scores",

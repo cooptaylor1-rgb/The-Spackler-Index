@@ -361,6 +361,7 @@
         <div class="tabs">
             <button class="tab active" onclick="showTab('individual')">Individual Player</button>
             <button class="tab" onclick="showTab('team')">Team / Member-Guest</button>
+            <button class="tab" onclick="showTab('consecutive')">Consecutive Scores</button>
         </div>
 
         <!-- Individual Player Tab -->
@@ -626,6 +627,134 @@
 
             <div class="error-message" id="team-error" style="display: none;"></div>
         </div>
+
+        <!-- Consecutive Scores Tab -->
+        <div id="consecutive-tab" class="tab-content">
+            <form id="consecutive-form">
+                <div class="form-section">
+                    <h3>👤 Golfer Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="cons-handicap">Handicap Index</label>
+                            <input type="number" id="cons-handicap" step="0.1" value="15.0" min="-10" max="54" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cons-target-score">Target Score</label>
+                            <input type="number" id="cons-target-score" value="42" min="25" max="100" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>⛳ Course Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="cons-course-name">Course Name</label>
+                            <input type="text" id="cons-course-name" value="My Local Course" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cons-tee-name">Tee</label>
+                            <input type="text" id="cons-tee-name" value="White" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cons-par">Par (Full 18)</label>
+                            <input type="number" id="cons-par" value="72" min="27" max="80" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cons-course-rating">Course Rating (Full 18)</label>
+                            <input type="number" id="cons-course-rating" step="0.1" value="72.5" min="55" max="85" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cons-slope-rating">Slope Rating</label>
+                            <input type="number" id="cons-slope-rating" value="130" min="55" max="155" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🎯 Match Configuration</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="holes-per-round">Holes Per Round</label>
+                            <select id="holes-per-round" required>
+                                <option value="18">18 Holes</option>
+                                <option value="9" selected>9 Holes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="consecutive-count">Consecutive Scores Needed</label>
+                            <input type="number" id="consecutive-count" value="3" min="1" max="20" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="total-matches">Total Matches (optional)</label>
+                            <input type="number" id="total-matches" value="10" min="1" max="100">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Calculate Consecutive Probability</button>
+            </form>
+
+            <div class="loading" id="consecutive-loading">
+                <div class="spinner"></div>
+                <p>Calculating...</p>
+            </div>
+
+            <div class="results-section" id="consecutive-results" style="display: none;">
+                <h3>📊 Consecutive Scores Results</h3>
+                
+                <div class="result-card">
+                    <div class="result-header">
+                        <h4>Single Round Probability</h4>
+                        <span class="probability-badge" id="cons-single-prob">--</span>
+                    </div>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="label">Expected Score</div>
+                            <div class="value" id="cons-expected-score">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Std Deviation</div>
+                            <div class="value" id="cons-score-std">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Target Score</div>
+                            <div class="value" id="cons-target-display">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Holes</div>
+                            <div class="value" id="cons-holes-display">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <h4>Consecutive Scores Probability</h4>
+                        <span class="probability-badge" id="cons-all-prob">--</span>
+                    </div>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="label">Consecutive Rounds</div>
+                            <div class="value" id="cons-count-display">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">P(All Consecutive)</div>
+                            <div class="value" id="cons-all-display">--</div>
+                        </div>
+                        <div class="detail-item" id="streak-container" style="display: none;">
+                            <div class="label">P(Streak in Matches)</div>
+                            <div class="value" id="cons-streak-display">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-text" id="consecutive-summary">
+                </div>
+            </div>
+
+            <div class="error-message" id="consecutive-error" style="display: none;"></div>
+        </div>
     </div>
 
     <footer>
@@ -639,7 +768,8 @@
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            document.querySelector(`.tab:nth-child(${tabName === 'individual' ? 1 : 2})`).classList.add('active');
+            const tabIndex = tabName === 'individual' ? 1 : (tabName === 'team' ? 2 : 3);
+            document.querySelector(`.tab:nth-child(${tabIndex})`).classList.add('active');
             document.getElementById(`${tabName}-tab`).classList.add('active');
         }
 
@@ -827,6 +957,103 @@
                     in any one round, and a <strong>${multiProb}%</strong> chance of doing it at least once 
                     over ${data.num_rounds} rounds.
                 `;
+
+                loading.classList.remove('active');
+                results.style.display = 'block';
+            } catch (err) {
+                loading.classList.remove('active');
+                error.textContent = err.message;
+                error.style.display = 'block';
+            }
+        });
+
+        // Consecutive Scores Form
+        document.getElementById('consecutive-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('consecutive-loading');
+            const results = document.getElementById('consecutive-results');
+            const error = document.getElementById('consecutive-error');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            error.style.display = 'none';
+
+            const golfer = {
+                handicap_index: parseFloat(document.getElementById('cons-handicap').value)
+            };
+            
+            const course = {
+                course_name: document.getElementById('cons-course-name').value,
+                tee_name: document.getElementById('cons-tee-name').value,
+                par: parseInt(document.getElementById('cons-par').value),
+                course_rating: parseFloat(document.getElementById('cons-course-rating').value),
+                slope_rating: parseInt(document.getElementById('cons-slope-rating').value)
+            };
+            
+            const targetScore = parseInt(document.getElementById('cons-target-score').value);
+            const holesPerRound = parseInt(document.getElementById('holes-per-round').value);
+            const consecutiveCount = parseInt(document.getElementById('consecutive-count').value);
+            const totalMatches = document.getElementById('total-matches').value ? 
+                parseInt(document.getElementById('total-matches').value) : null;
+
+            try {
+                const requestBody = {
+                    golfer: golfer,
+                    course: course,
+                    target: { target_score: targetScore },
+                    consecutive_count: consecutiveCount,
+                    holes_per_round: holesPerRound
+                };
+                
+                if (totalMatches) {
+                    requestBody.total_matches = totalMatches;
+                }
+
+                const response = await fetch(`${API_BASE}/probability/consecutive`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) throw new Error('Failed to calculate consecutive probability');
+                const data = await response.json();
+
+                // Update UI
+                document.getElementById('cons-single-prob').textContent = formatPercent(data.single_round_probability);
+                document.getElementById('cons-expected-score').textContent = data.expected_score.toFixed(1);
+                document.getElementById('cons-score-std').textContent = '±' + data.score_std.toFixed(1);
+                document.getElementById('cons-target-display').textContent = data.target_score;
+                document.getElementById('cons-holes-display').textContent = data.holes_per_round;
+                
+                document.getElementById('cons-all-prob').textContent = formatPercent(data.probability_all_consecutive);
+                document.getElementById('cons-count-display').textContent = data.consecutive_count;
+                document.getElementById('cons-all-display').textContent = formatPercent(data.probability_all_consecutive);
+                
+                // Show streak probability if total_matches was specified
+                if (data.probability_streak_in_matches !== null) {
+                    document.getElementById('streak-container').style.display = 'block';
+                    document.getElementById('cons-streak-display').textContent = formatPercent(data.probability_streak_in_matches);
+                } else {
+                    document.getElementById('streak-container').style.display = 'none';
+                }
+
+                // Summary text
+                const singleProb = (data.single_round_probability * 100).toFixed(1);
+                const allProb = (data.probability_all_consecutive * 100).toFixed(2);
+                let summaryText = `
+                    You have a <strong>${singleProb}%</strong> chance of shooting ${data.target_score} or better 
+                    in a single ${data.holes_per_round}-hole round, and a <strong>${allProb}%</strong> chance 
+                    of doing it ${data.consecutive_count} times in a row.
+                `;
+                
+                if (data.probability_streak_in_matches !== null) {
+                    const streakProb = (data.probability_streak_in_matches * 100).toFixed(2);
+                    summaryText += `<br><br>Over ${data.total_matches} total matches, there's a <strong>${streakProb}%</strong> 
+                    chance of having at least one streak of ${data.consecutive_count} consecutive scores at or below ${data.target_score}.`;
+                }
+                
+                document.getElementById('consecutive-summary').innerHTML = summaryText;
 
                 loading.classList.remove('active');
                 results.style.display = 'block';

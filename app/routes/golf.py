@@ -16,6 +16,8 @@ from app.models import (
     MilestoneProbabilityRequest,
     MilestoneProbabilityResponse,
     MilestoneResult,
+    ConsecutiveScoresProbabilityRequest,
+    ConsecutiveScoresProbabilityResponse,
 )
 from app.services import (
     compute_expected_score,
@@ -24,6 +26,10 @@ from app.services import (
     compute_multi_round_probability_at_least_once,
     binomial_tail,
     get_standard_milestones,
+    compute_nine_hole_expected_score,
+    estimate_nine_hole_score_std,
+    compute_consecutive_scores_probability,
+    compute_consecutive_in_n_matches_probability,
 )
 
 logger = logging.getLogger(__name__)
@@ -208,4 +214,84 @@ async def calculate_milestone_probabilities(
         score_std=round(sigma, 2),
         num_rounds=request.event.num_rounds,
         milestones=milestones
+    )
+
+
+@router.post(
+    "/probability/consecutive",
+    response_model=ConsecutiveScoresProbabilityResponse,
+    summary="Calculate Consecutive Scores Probability",
+    description=(
+        "Calculate the probability of shooting at or below a target score in "
+        "consecutive rounds. Supports both 9-hole and 18-hole matches."
+    )
+)
+async def calculate_consecutive_scores_probability(
+    request: ConsecutiveScoresProbabilityRequest
+) -> ConsecutiveScoresProbabilityResponse:
+    """
+    Calculate the probability of achieving consecutive target scores.
+    
+    Supports:
+    - Probability of shooting target in N consecutive rounds
+    - Probability of having at least one streak of N in M total matches
+    - Both 9-hole and 18-hole rounds
+    """
+    logger.info(
+        f"Consecutive scores calculation: handicap={request.golfer.handicap_index}, "
+        f"target={request.target.target_score}, consecutive={request.consecutive_count}, "
+        f"holes={request.holes_per_round}"
+    )
+    
+    # Compute expected score and standard deviation based on holes per round
+    if request.holes_per_round == 9:
+        expected_score = compute_nine_hole_expected_score(
+            request.golfer.handicap_index,
+            request.course
+        )
+        sigma = estimate_nine_hole_score_std(request.golfer.handicap_index)
+    else:
+        expected_score = compute_expected_score(
+            request.golfer.handicap_index,
+            request.course
+        )
+        sigma = estimate_score_std(request.golfer.handicap_index)
+    
+    # Compute single round probability
+    single_prob, _ = compute_single_round_probability(
+        expected_score,
+        sigma,
+        request.target.target_score
+    )
+    
+    # Compute probability of all consecutive successes
+    prob_all_consecutive = compute_consecutive_scores_probability(
+        single_prob,
+        request.consecutive_count
+    )
+    
+    # If total_matches is specified, compute probability of streak within matches
+    prob_streak_in_matches = None
+    if request.total_matches is not None:
+        prob_streak_in_matches = compute_consecutive_in_n_matches_probability(
+            single_prob,
+            request.consecutive_count,
+            request.total_matches
+        )
+    
+    logger.info(
+        f"Result: expected={expected_score:.1f}, single_prob={single_prob:.4f}, "
+        f"consecutive_prob={prob_all_consecutive:.6f}"
+    )
+    
+    return ConsecutiveScoresProbabilityResponse(
+        expected_score=round(expected_score, 2),
+        score_std=round(sigma, 2),
+        target_score=request.target.target_score,
+        consecutive_count=request.consecutive_count,
+        holes_per_round=request.holes_per_round,
+        single_round_probability=round(single_prob, 6),
+        probability_all_consecutive=round(prob_all_consecutive, 6),
+        total_matches=request.total_matches,
+        probability_streak_in_matches=round(prob_streak_in_matches, 6) if prob_streak_in_matches is not None else None
     )

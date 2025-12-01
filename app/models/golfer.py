@@ -75,8 +75,8 @@ class ScoringTarget(BaseModel):
     """
     target_score: int = Field(
         ..., 
-        description="Gross score threshold (e.g., 80 for 'breaking 80')",
-        ge=50,
+        description="Gross score threshold (e.g., 80 for 'breaking 80', or 40 for 9-hole matches)",
+        ge=25,   # Allow low scores for 9-hole matches
         le=150
     )
 

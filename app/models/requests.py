@@ -280,3 +280,78 @@ class TeamBestBallMultiRoundResponse(BaseModel):
         default="Team best-ball modeled as min of two independent net round scores (round-level approximation)",
         description="Notes about the approximation method used"
     )
+
+
+# ============================================================================
+# Consecutive Scores Request/Response Models
+# ============================================================================
+
+class ConsecutiveScoresProbabilityRequest(BaseModel):
+    """Request model for consecutive scores probability calculation."""
+    golfer: GolferProfile
+    course: CourseSetup
+    target: ScoringTarget
+    consecutive_count: int = Field(
+        ..., 
+        description="Number of consecutive rounds to achieve target score",
+        ge=1,
+        le=20
+    )
+    total_matches: Optional[int] = Field(
+        None, 
+        description="Total number of matches to play (if specified, calculates probability of achieving streak within these matches)",
+        ge=1,
+        le=100
+    )
+    holes_per_round: int = Field(
+        default=18,
+        description="Number of holes per round (9 or 18)",
+        ge=9,
+        le=18
+    )
+
+
+class ConsecutiveScoresProbabilityResponse(BaseModel):
+    """Response model for consecutive scores probability calculation."""
+    expected_score: float = Field(
+        ..., 
+        description="Expected gross score per round"
+    )
+    score_std: float = Field(
+        ..., 
+        description="Standard deviation of score distribution"
+    )
+    target_score: int = Field(
+        ..., 
+        description="Target score threshold"
+    )
+    consecutive_count: int = Field(
+        ..., 
+        description="Number of consecutive rounds required"
+    )
+    holes_per_round: int = Field(
+        ...,
+        description="Number of holes per round (9 or 18)"
+    )
+    single_round_probability: float = Field(
+        ..., 
+        description="Probability of achieving target in a single round",
+        ge=0.0,
+        le=1.0
+    )
+    probability_all_consecutive: float = Field(
+        ..., 
+        description="Probability of achieving target in ALL consecutive rounds",
+        ge=0.0,
+        le=1.0
+    )
+    total_matches: Optional[int] = Field(
+        None, 
+        description="Total number of matches (if specified)"
+    )
+    probability_streak_in_matches: Optional[float] = Field(
+        None, 
+        description="Probability of achieving at least one streak within total matches",
+        ge=0.0,
+        le=1.0
+    )
