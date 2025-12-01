@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golf Scoring Probability Calculator</title>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-dark: #1b5e20;
+            --primary-light: #4caf50;
+            --background: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --border-color: #e0e0e0;
+            --success: #4caf50;
+            --error: #f44336;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--card-bg);
+            border-bottom: 2px solid var(--border-color);
+            margin-top: 20px;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: var(--card-bg);
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .tab:hover {
+            background: #f9f9f9;
+            color: var(--primary-color);
+        }
+
+        .tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #fff 0%, #f9fbe7 100%);
+            border: 1px solid var(--primary-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-header h4 {
+            color: var(--primary-dark);
+        }
+
+        .probability-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 6px;
+        }
+
+        .detail-item .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .detail-item .value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .milestones-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .milestones-table th,
+        .milestones-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .milestones-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .milestones-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .milestones-table .prob-high {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .milestones-table .prob-low {
+            color: var(--error);
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: var(--error);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #ef9a9a;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .team-player-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .team-player-section h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .summary-text {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-top: 20px;
+        }
+
+        .summary-text strong {
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🏌️ Golf Scoring Probability Calculator</h1>
+        <p>Calculate your chances of shooting target scores based on your GHIN Handicap Index</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('individual')">Individual Player</button>
+            <button class="tab" onclick="showTab('team')">Team / Member-Guest</button>
+            <button class="tab" onclick="showTab('consecutive')">Consecutive Scores</button>
+        </div>
+
+        <!-- Individual Player Tab -->
+        <div id="individual-tab" class="tab-content active">
+            <form id="individual-form">
+                <div class="form-section">
+                    <h3>👤 Golfer Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="handicap">Handicap Index</label>
+                            <input type="number" id="handicap" step="0.1" value="15.0" min="-10" max="54" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="target-score">Target Score</label>
+                            <input type="number" id="target-score" value="85" min="50" max="150" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>⛳ Course Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="course-name">Course Name</label>
+                            <input type="text" id="course-name" value="My Local Course" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tee-name">Tee</label>
+                            <input type="text" id="tee-name" value="White" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="par">Par</label>
+                            <input type="number" id="par" value="72" min="27" max="80" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="course-rating">Course Rating</label>
+                            <input type="number" id="course-rating" step="0.1" value="72.5" min="55" max="85" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="slope-rating">Slope Rating</label>
+                            <input type="number" id="slope-rating" value="130" min="55" max="155" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🏆 Event Structure</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="num-rounds">Number of Rounds</label>
+                            <input type="number" id="num-rounds" value="3" min="1" max="10" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Calculate Probabilities</button>
+            </form>
+
+            <div class="loading" id="individual-loading">
+                <div class="spinner"></div>
+                <p>Calculating...</p>
+            </div>
+
+            <div class="results-section" id="individual-results" style="display: none;">
+                <h3>📊 Results</h3>
+                
+                <div class="result-card" id="single-round-result">
+                    <div class="result-header">
+                        <h4>Single Round Probability</h4>
+                        <span class="probability-badge" id="single-prob">--</span>
+                    </div>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="label">Expected Score</div>
+                            <div class="value" id="expected-score">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Std Deviation</div>
+                            <div class="value" id="score-std">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Target Score</div>
+                            <div class="value" id="target-display">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Z-Score</div>
+                            <div class="value" id="z-score">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card" id="multi-round-result">
+                    <div class="result-header">
+                        <h4>Multi-Round Probabilities</h4>
+                        <span class="probability-badge" id="multi-prob">--</span>
+                    </div>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="label">At Least Once</div>
+                            <div class="value" id="prob-at-least-once">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Rounds</div>
+                            <div class="value" id="num-rounds-display">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card" id="milestones-result">
+                    <h4 style="margin-bottom: 15px;">Milestone Probabilities</h4>
+                    <table class="milestones-table">
+                        <thead>
+                            <tr>
+                                <th>Target Score</th>
+                                <th>Single Round</th>
+                                <th>At Least Once</th>
+                            </tr>
+                        </thead>
+                        <tbody id="milestones-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="error-message" id="individual-error" style="display: none;"></div>
+        </div>
+
+        <!-- Team / Member-Guest Tab -->
+        <div id="team-tab" class="tab-content">
+            <form id="team-form">
+                <div class="form-section">
+                    <div class="team-player-section">
+                        <h4>👤 Player 1 (Member)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="p1-handicap">Handicap Index</label>
+                                <input type="number" id="p1-handicap" step="0.1" value="12.0" min="-10" max="54" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="team-player-section">
+                        <h4>👤 Player 2 (Guest)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="p2-handicap">Handicap Index</label>
+                                <input type="number" id="p2-handicap" step="0.1" value="8.0" min="-10" max="54" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>⛳ Course Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="team-course-name">Course Name</label>
+                            <input type="text" id="team-course-name" value="Member-Guest Venue" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="team-tee-name">Tee</label>
+                            <input type="text" id="team-tee-name" value="Blue" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="team-par">Par</label>
+                            <input type="number" id="team-par" value="72" min="27" max="80" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="team-course-rating">Course Rating</label>
+                            <input type="number" id="team-course-rating" step="0.1" value="73.5" min="55" max="85" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="team-slope-rating">Slope Rating</label>
+                            <input type="number" id="team-slope-rating" value="135" min="55" max="155" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🎯 Best-Ball Target</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="target-net-score">Target Net Best-Ball Score</label>
+                            <input type="number" id="target-net-score" value="63" min="40" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="handicap-allowance">Handicap Allowance %</label>
+                            <input type="number" id="handicap-allowance" value="100" min="0" max="100" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🏆 Event Structure</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="team-num-rounds">Number of Rounds</label>
+                            <input type="number" id="team-num-rounds" value="3" min="1" max="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="min-success-rounds">Min Success Rounds</label>
+                            <input type="number" id="min-success-rounds" value="1" min="1" max="10" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Calculate Team Probabilities</button>
+            </form>
+
+            <div class="loading" id="team-loading">
+                <div class="spinner"></div>
+                <p>Running simulation...</p>
+            </div>
+
+            <div class="results-section" id="team-results" style="display: none;">
+                <h3>📊 Team Best-Ball Results</h3>
+                
+                <div class="result-card">
+                    <div class="result-header">
+                        <h4>Single Round Best-Ball</h4>
+                        <span class="probability-badge" id="team-single-prob">--</span>
+                    </div>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="label">Expected Net Best-Ball</div>
+                            <div class="value" id="team-expected-bb">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Std Deviation</div>
+                            <div class="value" id="team-std-bb">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Target Net Score</div>
+                            <div class="value" id="team-target-display">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <h4>Multi-Round Probabilities</h4>
+                        <span class="probability-badge" id="team-multi-prob">--</span>
+                    </div>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="label">At Least Once</div>
+                            <div class="value" id="team-prob-at-least-once">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">At Least N Rounds</div>
+                            <div class="value" id="team-prob-at-least-n">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Simulations</div>
+                            <div class="value" id="team-simulations">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-text" id="team-summary">
+                </div>
+            </div>
+
+            <div class="error-message" id="team-error" style="display: none;"></div>
+        </div>
+
+        <!-- Consecutive Scores Tab -->
+        <div id="consecutive-tab" class="tab-content">
+            <form id="consecutive-form">
+                <div class="form-section">
+                    <h3>👤 Golfer Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="cons-handicap">Handicap Index</label>
+                            <input type="number" id="cons-handicap" step="0.1" value="15.0" min="-10" max="54" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cons-target-score">Target Score</label>
+                            <input type="number" id="cons-target-score" value="42" min="25" max="100" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>⛳ Course Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="cons-course-name">Course Name</label>
+                            <input type="text" id="cons-course-name" value="My Local Course" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cons-tee-name">Tee</label>
+                            <input type="text" id="cons-tee-name" value="White" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cons-par">Par (Full 18)</label>
+                            <input type="number" id="cons-par" value="72" min="27" max="80" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cons-course-rating">Course Rating (Full 18)</label>
+                            <input type="number" id="cons-course-rating" step="0.1" value="72.5" min="55" max="85" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cons-slope-rating">Slope Rating</label>
+                            <input type="number" id="cons-slope-rating" value="130" min="55" max="155" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🎯 Match Configuration</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="holes-per-round">Holes Per Round</label>
+                            <select id="holes-per-round" required>
+                                <option value="18">18 Holes</option>
+                                <option value="9" selected>9 Holes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="consecutive-count">Consecutive Scores Needed</label>
+                            <input type="number" id="consecutive-count" value="3" min="1" max="20" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="total-matches">Total Matches (optional)</label>
+                            <input type="number" id="total-matches" value="10" min="1" max="100">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Calculate Consecutive Probability</button>
+            </form>
+
+            <div class="loading" id="consecutive-loading">
+                <div class="spinner"></div>
+                <p>Calculating...</p>
+            </div>
+
+            <div class="results-section" id="consecutive-results" style="display: none;">
+                <h3>📊 Consecutive Scores Results</h3>
+                
+                <div class="result-card">
+                    <div class="result-header">
+                        <h4>Single Round Probability</h4>
+                        <span class="probability-badge" id="cons-single-prob">--</span>
+                    </div>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="label">Expected Score</div>
+                            <div class="value" id="cons-expected-score">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Std Deviation</div>
+                            <div class="value" id="cons-score-std">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Target Score</div>
+                            <div class="value" id="cons-target-display">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Holes</div>
+                            <div class="value" id="cons-holes-display">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <h4>Consecutive Scores Probability</h4>
+                        <span class="probability-badge" id="cons-all-prob">--</span>
+                    </div>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="label">Consecutive Rounds</div>
+                            <div class="value" id="cons-count-display">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">P(All Consecutive)</div>
+                            <div class="value" id="cons-all-display">--</div>
+                        </div>
+                        <div class="detail-item" id="streak-container" style="display: none;">
+                            <div class="label">P(Streak in Matches)</div>
+                            <div class="value" id="cons-streak-display">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-text" id="consecutive-summary">
+                </div>
+            </div>
+
+            <div class="error-message" id="consecutive-error" style="display: none;"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Golf Scoring Probability Engine v1.0.0 | <a href="/docs" target="_blank">API Documentation</a></p>
+    </footer>
+
+    <script>
+        const API_BASE = '/api/golf';
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const tabIndex = tabName === 'individual' ? 1 : (tabName === 'team' ? 2 : 3);
+            document.querySelector(`.tab:nth-child(${tabIndex})`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        function formatPercent(value) {
+            return (value * 100).toFixed(1) + '%';
+        }
+
+        function getProbClass(prob) {
+            return prob >= 0.2 ? 'prob-high' : 'prob-low';
+        }
+
+        // Individual Player Form
+        document.getElementById('individual-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('individual-loading');
+            const results = document.getElementById('individual-results');
+            const error = document.getElementById('individual-error');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            error.style.display = 'none';
+
+            const golfer = {
+                handicap_index: parseFloat(document.getElementById('handicap').value)
+            };
+            
+            const course = {
+                course_name: document.getElementById('course-name').value,
+                tee_name: document.getElementById('tee-name').value,
+                par: parseInt(document.getElementById('par').value),
+                course_rating: parseFloat(document.getElementById('course-rating').value),
+                slope_rating: parseInt(document.getElementById('slope-rating').value)
+            };
+            
+            const targetScore = parseInt(document.getElementById('target-score').value);
+            const numRounds = parseInt(document.getElementById('num-rounds').value);
+
+            try {
+                // Single round probability
+                const singleResponse = await fetch(`${API_BASE}/probability/single-round`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        golfer: golfer,
+                        course: course,
+                        target: { target_score: targetScore }
+                    })
+                });
+                
+                if (!singleResponse.ok) throw new Error('Failed to calculate single round probability');
+                const singleData = await singleResponse.json();
+
+                // Multi-round probability
+                const multiResponse = await fetch(`${API_BASE}/probability/multi-round`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        golfer: golfer,
+                        course: course,
+                        target: { target_score: targetScore },
+                        event: { num_rounds: numRounds }
+                    })
+                });
+                
+                if (!multiResponse.ok) throw new Error('Failed to calculate multi-round probability');
+                const multiData = await multiResponse.json();
+
+                // Milestones
+                const milestonesResponse = await fetch(`${API_BASE}/probability/milestones`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        golfer: golfer,
+                        course: course,
+                        event: { num_rounds: numRounds }
+                    })
+                });
+                
+                if (!milestonesResponse.ok) throw new Error('Failed to calculate milestone probabilities');
+                const milestonesData = await milestonesResponse.json();
+
+                // Update UI
+                document.getElementById('single-prob').textContent = formatPercent(singleData.probability_score_at_or_below_target);
+                document.getElementById('expected-score').textContent = singleData.expected_score.toFixed(1);
+                document.getElementById('score-std').textContent = '±' + singleData.score_std.toFixed(1);
+                document.getElementById('target-display').textContent = singleData.target_score;
+                document.getElementById('z-score').textContent = singleData.z_score ? singleData.z_score.toFixed(2) : '--';
+
+                document.getElementById('multi-prob').textContent = formatPercent(multiData.probability_at_least_once);
+                document.getElementById('prob-at-least-once').textContent = formatPercent(multiData.probability_at_least_once);
+                document.getElementById('num-rounds-display').textContent = multiData.num_rounds;
+
+                // Milestones table
+                const milestonesBody = document.getElementById('milestones-body');
+                milestonesBody.innerHTML = '';
+                milestonesData.milestones.forEach(milestone => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${milestone.target_score}</strong></td>
+                        <td class="${getProbClass(milestone.prob_single_round_at_or_below)}">${formatPercent(milestone.prob_single_round_at_or_below)}</td>
+                        <td class="${getProbClass(milestone.prob_at_least_once_in_event)}">${formatPercent(milestone.prob_at_least_once_in_event)}</td>
+                    `;
+                    milestonesBody.appendChild(row);
+                });
+
+                loading.classList.remove('active');
+                results.style.display = 'block';
+            } catch (err) {
+                loading.classList.remove('active');
+                error.textContent = err.message;
+                error.style.display = 'block';
+            }
+        });
+
+        // Team Form
+        document.getElementById('team-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('team-loading');
+            const results = document.getElementById('team-results');
+            const error = document.getElementById('team-error');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            error.style.display = 'none';
+
+            const team = {
+                player1: {
+                    golfer: { handicap_index: parseFloat(document.getElementById('p1-handicap').value) }
+                },
+                player2: {
+                    golfer: { handicap_index: parseFloat(document.getElementById('p2-handicap').value) }
+                }
+            };
+            
+            const course = {
+                course_name: document.getElementById('team-course-name').value,
+                tee_name: document.getElementById('team-tee-name').value,
+                par: parseInt(document.getElementById('team-par').value),
+                course_rating: parseFloat(document.getElementById('team-course-rating').value),
+                slope_rating: parseInt(document.getElementById('team-slope-rating').value)
+            };
+            
+            const bestballTarget = {
+                target_net_score: parseInt(document.getElementById('target-net-score').value),
+                handicap_allowance_percent: parseFloat(document.getElementById('handicap-allowance').value)
+            };
+            
+            const numRounds = parseInt(document.getElementById('team-num-rounds').value);
+            const minSuccessRounds = parseInt(document.getElementById('min-success-rounds').value);
+
+            try {
+                const response = await fetch(`${API_BASE}/team/bestball/probability/multi-round`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        team: team,
+                        course: course,
+                        bestball_target: bestballTarget,
+                        event: { num_rounds: numRounds },
+                        min_success_rounds: minSuccessRounds
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Failed to calculate team probability');
+                const data = await response.json();
+
+                // Update UI
+                document.getElementById('team-single-prob').textContent = formatPercent(data.probability_net_bestball_at_or_below_target_single_round);
+                document.getElementById('team-expected-bb').textContent = data.expected_team_bestball_score_single_round.toFixed(1);
+                document.getElementById('team-std-bb').textContent = '±' + data.std_team_bestball_score_single_round.toFixed(1);
+                document.getElementById('team-target-display').textContent = data.target_net_score;
+                
+                document.getElementById('team-multi-prob').textContent = formatPercent(data.probability_at_least_once_in_event);
+                document.getElementById('team-prob-at-least-once').textContent = formatPercent(data.probability_at_least_once_in_event);
+                document.getElementById('team-prob-at-least-n').textContent = formatPercent(data.probability_at_least_min_success_rounds);
+                document.getElementById('team-simulations').textContent = data.num_simulations_used.toLocaleString();
+
+                // Summary text
+                const singleProb = (data.probability_net_bestball_at_or_below_target_single_round * 100).toFixed(0);
+                const multiProb = (data.probability_at_least_once_in_event * 100).toFixed(0);
+                document.getElementById('team-summary').innerHTML = `
+                    Your team has a <strong>${singleProb}%</strong> chance of firing net ${data.target_net_score} or better 
+                    in any one round, and a <strong>${multiProb}%</strong> chance of doing it at least once 
+                    over ${data.num_rounds} rounds.
+                `;
+
+                loading.classList.remove('active');
+                results.style.display = 'block';
+            } catch (err) {
+                loading.classList.remove('active');
+                error.textContent = err.message;
+                error.style.display = 'block';
+            }
+        });
+
+        // Consecutive Scores Form
+        document.getElementById('consecutive-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('consecutive-loading');
+            const results = document.getElementById('consecutive-results');
+            const error = document.getElementById('consecutive-error');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            error.style.display = 'none';
+
+            const golfer = {
+                handicap_index: parseFloat(document.getElementById('cons-handicap').value)
+            };
+            
+            const course = {
+                course_name: document.getElementById('cons-course-name').value,
+                tee_name: document.getElementById('cons-tee-name').value,
+                par: parseInt(document.getElementById('cons-par').value),
+                course_rating: parseFloat(document.getElementById('cons-course-rating').value),
+                slope_rating: parseInt(document.getElementById('cons-slope-rating').value)
+            };
+            
+            const targetScore = parseInt(document.getElementById('cons-target-score').value);
+            const holesPerRound = parseInt(document.getElementById('holes-per-round').value);
+            const consecutiveCount = parseInt(document.getElementById('consecutive-count').value);
+            const totalMatches = document.getElementById('total-matches').value ? 
+                parseInt(document.getElementById('total-matches').value) : null;
+
+            try {
+                const requestBody = {
+                    golfer: golfer,
+                    course: course,
+                    target: { target_score: targetScore },
+                    consecutive_count: consecutiveCount,
+                    holes_per_round: holesPerRound
+                };
+                
+                if (totalMatches) {
+                    requestBody.total_matches = totalMatches;
+                }
+
+                const response = await fetch(`${API_BASE}/probability/consecutive`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) throw new Error('Failed to calculate consecutive probability');
+                const data = await response.json();
+
+                // Update UI
+                document.getElementById('cons-single-prob').textContent = formatPercent(data.single_round_probability);
+                document.getElementById('cons-expected-score').textContent = data.expected_score.toFixed(1);
+                document.getElementById('cons-score-std').textContent = '±' + data.score_std.toFixed(1);
+                document.getElementById('cons-target-display').textContent = data.target_score;
+                document.getElementById('cons-holes-display').textContent = data.holes_per_round;
+                
+                document.getElementById('cons-all-prob').textContent = formatPercent(data.probability_all_consecutive);
+                document.getElementById('cons-count-display').textContent = data.consecutive_count;
+                document.getElementById('cons-all-display').textContent = formatPercent(data.probability_all_consecutive);
+                
+                // Show streak probability if total_matches was specified
+                if (data.probability_streak_in_matches !== null) {
+                    document.getElementById('streak-container').style.display = 'block';
+                    document.getElementById('cons-streak-display').textContent = formatPercent(data.probability_streak_in_matches);
+                } else {
+                    document.getElementById('streak-container').style.display = 'none';
+                }
+
+                // Summary text
+                const singleProb = (data.single_round_probability * 100).toFixed(1);
+                const allProb = (data.probability_all_consecutive * 100).toFixed(2);
+                let summaryText = `
+                    You have a <strong>${singleProb}%</strong> chance of shooting ${data.target_score} or better 
+                    in a single ${data.holes_per_round}-hole round, and a <strong>${allProb}%</strong> chance 
+                    of doing it ${data.consecutive_count} times in a row.
+                `;
+                
+                if (data.probability_streak_in_matches !== null) {
+                    const streakProb = (data.probability_streak_in_matches * 100).toFixed(2);
+                    summaryText += `<br><br>Over ${data.total_matches} total matches, there's a <strong>${streakProb}%</strong> 
+                    chance of having at least one streak of ${data.consecutive_count} consecutive scores at or below ${data.target_score}.`;
+                }
+                
+                document.getElementById('consecutive-summary').innerHTML = summaryText;
+
+                loading.classList.remove('active');
+                results.style.display = 'block';
+            } catch (err) {
+                loading.classList.remove('active');
+                error.textContent = err.message;
+                error.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
