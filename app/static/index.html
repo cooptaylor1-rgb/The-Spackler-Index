@@ -9,16 +9,17 @@
     <title>Golf Scoring Probability Calculator</title>
     <style>
         :root {
-            --primary-color: #2e7d32;
-            --primary-dark: #1b5e20;
-            --primary-light: #4caf50;
-            --background: #f5f5f5;
+            --primary-color: #1abc9c;
+            --primary-dark: #12806a;
+            --primary-light: #b9f6ca;
+            --background: #f0f7f4;
             --card-bg: #ffffff;
-            --text-primary: #212121;
-            --text-secondary: #757575;
+            --text-primary: #1f1f1f;
+            --text-secondary: #546e7a;
             --border-color: #e0e0e0;
             --success: #4caf50;
             --error: #f44336;
+            --accent-gold: #ffc107;
         }
 
         * {
@@ -28,8 +29,11 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background-color: var(--background);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: radial-gradient(circle at 20% 20%, rgba(26, 188, 156, 0.12), transparent 25%),
+                        radial-gradient(circle at 80% 0%, rgba(255, 193, 7, 0.12), transparent 25%),
+                        radial-gradient(circle at 30% 80%, rgba(76, 175, 80, 0.12), transparent 20%),
+                        var(--background);
             color: var(--text-primary);
             line-height: 1.6;
         }
@@ -41,21 +45,55 @@
         }
 
         header {
+            position: relative;
+            overflow: hidden;
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 30px 20px;
+            padding: 40px 20px 50px;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-bottom: 5px solid var(--accent-gold);
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 160px;
+            height: 160px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 60%);
+            transform: rotate(25deg);
         }
 
         header h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
+            font-size: 2.4rem;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
         }
 
         header p {
-            opacity: 0.9;
-            font-size: 1rem;
+            opacity: 0.92;
+            font-size: 1.05rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .hero-ribbon {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: rgba(0,0,0,0.12);
+            border-radius: 999px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .hero-ribbon span {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 999px;
         }
 
         .tabs {
@@ -381,6 +419,20 @@
             font-size: 1.2rem;
         }
 
+        .whimsy-note {
+            background: linear-gradient(120deg, rgba(255, 193, 7, 0.15), rgba(26, 188, 156, 0.12));
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px dashed var(--accent-gold);
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin: 16px 0;
+        }
+
+        .whimsy-note strong {
+            color: var(--primary-dark);
+        }
+
         footer {
             text-align: center;
             padding: 20px;
@@ -428,11 +480,19 @@
 </head>
 <body>
     <header>
-        <h1>🏌️ Golf Scoring Probability Calculator</h1>
-        <p>Calculate your chances of shooting target scores based on your GHIN Handicap Index</p>
+        <div class="hero-ribbon">🏴‍☠️ Fairway Fraud Finder <span>powered by honest math</span></div>
+        <h1>🏌️‍♂️ Golf Scoring Probability &amp; Cheater Radar</h1>
+        <p>Crunch the numbers, giggle at the odds, and call out that "miracle" round with science-backed snark.</p>
     </header>
 
     <div class="container">
+        <div class="result-card" style="margin-top: -40px; margin-bottom: 20px; border-left: 6px solid var(--accent-gold);">
+            <h3 style="margin-bottom: 10px;">🎭 Welcome to the Sandbagger Circus</h3>
+            <p style="color: var(--text-secondary);">
+                This playful dashboard celebrates the honest grinders and lovingly heckles the suspiciously lucky.
+                Toss in your details to see the odds, sniff out fibs, and keep your weekend foursome fun (and fair).
+            </p>
+        </div>
         <div class="tabs">
             <button class="tab active" onclick="showTab('individual')">Individual Player</button>
             <button class="tab" onclick="showTab('team')">Team / Member-Guest</button>
@@ -1078,6 +1138,7 @@
                 <p style="color: var(--text-secondary); margin-bottom: 15px;">
                     Optional: Enter casual round scores to compare performance. Sandbaggers often play worse in casual rounds to inflate their handicap.
                 </p>
+                <div class="whimsy-note">💡 <strong>Pro Tip:</strong> Serial sandbaggers mysteriously forget to post their low casual rounds. We're taking notes.</div>
                 <div id="casual-scores-container">
                     <!-- Casual scores added dynamically -->
                 </div>
@@ -1166,6 +1227,7 @@
 
     <footer>
         <p>Golf Scoring Probability Engine v1.0.0 | <a href="/docs" target="_blank">API Documentation</a></p>
+        <p style="margin-top: 6px; color: var(--text-secondary);">Keep it playful, keep it honest. Sandbaggers beware—your odds are showing.</p>
     </footer>
 
     <script>
