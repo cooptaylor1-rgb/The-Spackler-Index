@@ -1,158 +1,295 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
-    <!-- Chrysanthemum/Mum flower -->
-    <g id="mum">
-      <circle cx="0" cy="0" r="12" fill="#FFD700"/>
+    <!-- Gradient for dramatic lighting -->
+    <radialGradient id="spotlight" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#4a6b4a"/>
+      <stop offset="100%" stop-color="#1a2b1c"/>
+    </radialGradient>
+    
+    <!-- Glow effect for drama -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Motion blur for swing -->
+    <filter id="motionBlur">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2,0"/>
+    </filter>
+    
+    <!-- Chrysanthemum flower - more detailed -->
+    <g id="mum-full">
+      <circle cx="0" cy="0" r="8" fill="#FFD93D"/>
+      <!-- Inner petals -->
       <g fill="#FF6B6B">
-        <ellipse cx="0" cy="-18" rx="6" ry="12"/>
-        <ellipse cx="12.7" cy="-12.7" rx="6" ry="12" transform="rotate(45)"/>
-        <ellipse cx="18" cy="0" rx="6" ry="12" transform="rotate(90)"/>
-        <ellipse cx="12.7" cy="12.7" rx="6" ry="12" transform="rotate(135)"/>
-        <ellipse cx="0" cy="18" rx="6" ry="12" transform="rotate(180)"/>
-        <ellipse cx="-12.7" cy="12.7" rx="6" ry="12" transform="rotate(225)"/>
-        <ellipse cx="-18" cy="0" rx="6" ry="12" transform="rotate(270)"/>
-        <ellipse cx="-12.7" cy="-12.7" rx="6" ry="12" transform="rotate(315)"/>
+        <ellipse cx="0" cy="-12" rx="4" ry="9" opacity="0.9"/>
+        <ellipse cx="8.5" cy="-8.5" rx="4" ry="9" transform="rotate(45)" opacity="0.9"/>
+        <ellipse cx="12" cy="0" rx="4" ry="9" transform="rotate(90)" opacity="0.9"/>
+        <ellipse cx="8.5" cy="8.5" rx="4" ry="9" transform="rotate(135)" opacity="0.9"/>
+        <ellipse cx="0" cy="12" rx="4" ry="9" transform="rotate(180)" opacity="0.9"/>
+        <ellipse cx="-8.5" cy="8.5" rx="4" ry="9" transform="rotate(225)" opacity="0.9"/>
+        <ellipse cx="-12" cy="0" rx="4" ry="9" transform="rotate(270)" opacity="0.9"/>
+        <ellipse cx="-8.5" cy="-8.5" rx="4" ry="9" transform="rotate(315)" opacity="0.9"/>
+      </g>
+      <!-- Outer petals -->
+      <g fill="#E85555">
+        <ellipse cx="0" cy="-16" rx="3" ry="7" opacity="0.7"/>
+        <ellipse cx="11" cy="-11" rx="3" ry="7" transform="rotate(45)" opacity="0.7"/>
+        <ellipse cx="16" cy="0" rx="3" ry="7" transform="rotate(90)" opacity="0.7"/>
+        <ellipse cx="11" cy="11" rx="3" ry="7" transform="rotate(135)" opacity="0.7"/>
+        <ellipse cx="0" cy="16" rx="3" ry="7" transform="rotate(180)" opacity="0.7"/>
+        <ellipse cx="-11" cy="11" rx="3" ry="7" transform="rotate(225)" opacity="0.7"/>
+        <ellipse cx="-16" cy="0" rx="3" ry="7" transform="rotate(270)" opacity="0.7"/>
+        <ellipse cx="-11" cy="-11" rx="3" ry="7" transform="rotate(315)" opacity="0.7"/>
       </g>
     </g>
     
-    <!-- Flying petal -->
-    <ellipse id="petal" rx="4" ry="8" fill="#FF6B6B"/>
-    
-    <!-- Dirt chunk -->
-    <circle id="dirt" r="4" fill="#5D4037"/>
+    <!-- Single flying petal -->
+    <g id="petal">
+      <ellipse rx="3" ry="6" fill="#FF6B6B"/>
+      <ellipse rx="2" ry="4" fill="#E85555" opacity="0.5"/>
+    </g>
   </defs>
   
-  <!-- Background - golf course green -->
-  <rect width="400" height="400" fill="#2C472F"/>
+  <!-- Background - Augusta-like golf course at dusk -->
+  <rect width="400" height="400" fill="url(#spotlight)"/>
   
-  <!-- Ground/grass area -->
-  <ellipse cx="200" cy="380" rx="180" ry="40" fill="#1a2b1c"/>
-  <ellipse cx="200" cy="375" rx="170" ry="35" fill="#3d5c40"/>
+  <!-- Subtle grass texture -->
+  <g opacity="0.3">
+    <path d="M0 380 Q10 370 5 360 M20 380 Q25 365 22 355 M40 380 Q45 368 42 358" stroke="#2d4a2d" stroke-width="1" fill="none"/>
+    <path d="M60 380 Q65 372 62 362 M80 380 Q88 368 84 356 M100 380 Q105 370 102 358" stroke="#2d4a2d" stroke-width="1" fill="none"/>
+    <path d="M120 380 Q128 365 124 355 M140 380 Q145 372 142 360 M160 380 Q168 368 164 356" stroke="#2d4a2d" stroke-width="1" fill="none"/>
+    <path d="M180 380 Q185 370 182 358 M200 380 Q208 365 204 352 M220 380 Q225 372 222 360" stroke="#2d4a2d" stroke-width="1" fill="none"/>
+    <path d="M240 380 Q248 368 244 355 M260 380 Q265 370 262 358 M280 380 Q288 365 284 352" stroke="#2d4a2d" stroke-width="1" fill="none"/>
+    <path d="M300 380 Q305 372 302 360 M320 380 Q328 368 324 355 M340 380 Q345 370 342 358" stroke="#2d4a2d" stroke-width="1" fill="none"/>
+    <path d="M360 380 Q368 365 364 352 M380 380 Q385 372 382 360 M395 380 Q398 368 396 358" stroke="#2d4a2d" stroke-width="1" fill="none"/>
+  </g>
   
-  <!-- Flower bed being destroyed -->
-  <ellipse cx="280" cy="340" rx="80" ry="25" fill="#3d2817"/>
+  <!-- Flower bed (the crime scene) -->
+  <ellipse cx="290" cy="340" rx="90" ry="30" fill="#3d2817"/>
+  <ellipse cx="290" cy="335" rx="85" ry="25" fill="#4a3520"/>
   
-  <!-- Remaining flowers (getting destroyed) -->
-  <use href="#mum" x="320" y="320" transform="translate(320,320) scale(0.8)"/>
-  <use href="#mum" x="340" y="330" transform="translate(340,330) scale(0.6) rotate(-15)"/>
-  <use href="#mum" x="300" y="335" transform="translate(300,335) scale(0.7) rotate(10)"/>
+  <!-- Surviving flowers in the bed -->
+  <use href="#mum-full" transform="translate(340, 320) scale(0.7)"/>
+  <use href="#mum-full" transform="translate(355, 335) scale(0.5) rotate(-10)"/>
+  <use href="#mum-full" transform="translate(320, 340) scale(0.6) rotate(15)"/>
+  <use href="#mum-full" transform="translate(365, 325) scale(0.45)"/>
   
-  <!-- Carl Spackler figure -->
-  <g id="carl" transform="translate(130, 180)">
-    <!-- Shadow -->
-    <ellipse cx="40" cy="195" rx="50" ry="15" fill="rgba(0,0,0,0.3)"/>
+  <!-- ========== CARL SPACKLER ========== -->
+  <g id="carl" transform="translate(95, 120)">
     
-    <!-- Back leg -->
-    <path d="M60 140 L70 180 L65 195" stroke="#4a4a4a" stroke-width="14" stroke-linecap="round" fill="none"/>
-    <!-- Boot -->
-    <ellipse cx="65" cy="193" rx="12" ry="6" fill="#2d2d2d"/>
+    <!-- Shadow on ground -->
+    <ellipse cx="55" cy="235" rx="60" ry="18" fill="rgba(0,0,0,0.4)"/>
     
-    <!-- Body/torso - dirty work clothes -->
-    <path d="M30 80 Q25 110 35 140 Q45 145 55 140 Q65 110 60 80 Z" fill="#5D4E37"/>
-    <!-- Shirt wrinkles -->
-    <path d="M35 90 Q40 100 35 110" stroke="#4a3f2f" stroke-width="1" fill="none"/>
-    <path d="M55 95 Q50 105 55 115" stroke="#4a3f2f" stroke-width="1" fill="none"/>
+    <!-- === LEGS === -->
+    <!-- Back leg (straight, planted) -->
+    <path d="M70 175 L78 215 L75 235" stroke="#3d3d3d" stroke-width="18" stroke-linecap="round" fill="none"/>
+    <!-- Work boot -->
+    <path d="M60 232 Q75 240 90 235 L88 242 Q72 248 58 240 Z" fill="#2a2a2a"/>
+    <path d="M62 234 L86 236" stroke="#1a1a1a" stroke-width="2"/>
     
-    <!-- Front leg (bent, follow-through) -->
-    <path d="M35 140 L20 170 L25 190" stroke="#4a4a4a" stroke-width="14" stroke-linecap="round" fill="none"/>
-    <!-- Boot -->
-    <ellipse cx="25" cy="188" rx="12" ry="6" fill="#2d2d2d"/>
+    <!-- Front leg (bent, weight forward) -->
+    <path d="M45 175 L30 210 L35 235" stroke="#3d3d3d" stroke-width="18" stroke-linecap="round" fill="none"/>
+    <!-- Work boot -->
+    <path d="M20 232 Q35 242 50 237 L48 244 Q32 250 18 242 Z" fill="#2a2a2a"/>
+    <path d="M22 234 L46 237" stroke="#1a1a1a" stroke-width="2"/>
     
-    <!-- Back arm (holding club at top of follow-through) -->
-    <path d="M55 85 Q80 60 110 40" stroke="#5D4E37" stroke-width="10" stroke-linecap="round" fill="none"/>
-    <!-- Hand -->
-    <circle cx="110" cy="40" r="6" fill="#C6AF7F"/>
+    <!-- === TORSO === -->
+    <!-- Dirty work shirt/coveralls -->
+    <path d="M35 95 Q28 130 38 175 Q55 182 72 175 Q82 130 75 95 Z" fill="#5c5040"/>
+    <!-- Shirt details - wrinkles and stains -->
+    <path d="M42 110 Q48 125 44 145" stroke="#4a4035" stroke-width="2" fill="none" opacity="0.6"/>
+    <path d="M65 115 Q60 130 64 150" stroke="#4a4035" stroke-width="2" fill="none" opacity="0.6"/>
+    <!-- Dirt stains on shirt -->
+    <ellipse cx="50" cy="140" rx="8" ry="5" fill="#3d3020" opacity="0.4"/>
+    <ellipse cx="62" cy="160" rx="6" ry="4" fill="#3d3020" opacity="0.3"/>
+    
+    <!-- === ARMS - THE SWING === -->
+    <!-- Back arm (extended in follow-through) -->
+    <path d="M72 100 Q95 70 130 35" stroke="#5c5040" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <!-- Forearm/hand -->
+    <circle cx="130" cy="35" r="8" fill="#d4a574"/>
+    <!-- Fingers gripping -->
+    <path d="M126 30 Q124 25 128 22" stroke="#c49464" stroke-width="3" fill="none"/>
+    <path d="M134 30 Q136 25 132 22" stroke="#c49464" stroke-width="3" fill="none"/>
     
     <!-- Front arm -->
-    <path d="M35 85 Q50 70 75 50" stroke="#5D4E37" stroke-width="10" stroke-linecap="round" fill="none"/>
-    <!-- Hand -->
-    <circle cx="75" cy="50" r="6" fill="#C6AF7F"/>
+    <path d="M40 100 Q60 75 95 50" stroke="#5c5040" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <!-- Forearm/hand -->
+    <circle cx="95" cy="50" r="8" fill="#d4a574"/>
+    <path d="M91 45 Q89 40 93 37" stroke="#c49464" stroke-width="3" fill="none"/>
+    <path d="M99 45 Q101 40 97 37" stroke="#c49464" stroke-width="3" fill="none"/>
     
-    <!-- Golf club shaft -->
-    <line x1="75" y1="50" x2="170" y2="-30" stroke="#8B7355" stroke-width="4" stroke-linecap="round"/>
-    <!-- Club head (iron) -->
-    <rect x="165" y="-40" width="15" height="25" rx="2" fill="#C0C0C0" transform="rotate(-25, 170, -30)"/>
+    <!-- === THE WEAPON - Grass whip/club === -->
+    <!-- Shaft with motion blur effect -->
+    <g filter="url(#motionBlur)">
+      <line x1="95" y1="50" x2="210" y2="-40" stroke="#8B7355" stroke-width="5" stroke-linecap="round"/>
+      <line x1="130" y1="35" x2="210" y2="-40" stroke="#8B7355" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <!-- Club head / grass whip blade -->
+    <path d="M205 -45 L220 -55 L225 -40 L210 -30 Z" fill="#708090" stroke="#5a6a7a" stroke-width="1"/>
+    <line x1="210" y1="-45" x2="218" y2="-38" stroke="#8899aa" stroke-width="1" opacity="0.5"/>
     
-    <!-- Head -->
-    <circle cx="45" cy="55" r="22" fill="#C6AF7F"/>
+    <!-- === HEAD === -->
+    <ellipse cx="55" cy="65" rx="26" ry="30" fill="#d4a574"/>
     
-    <!-- Iconic camo/army cap -->
-    <path d="M25 50 Q30 35 50 32 Q70 35 68 50 L25 50 Z" fill="#556B2F"/>
-    <ellipse cx="47" cy="50" rx="26" ry="8" fill="#6B8E23"/>
-    <!-- Cap brim -->
-    <path d="M68 48 Q85 50 80 55 Q70 58 68 52" fill="#4a5c32"/>
+    <!-- Ear -->
+    <ellipse cx="28" cy="65" rx="6" ry="10" fill="#c49464"/>
+    <ellipse cx="29" cy="65" rx="3" ry="6" fill="#b48454"/>
     
-    <!-- Face details -->
-    <!-- Eyes (squinting, determined) -->
-    <ellipse cx="38" cy="52" rx="3" ry="2" fill="#2d2d2d"/>
-    <ellipse cx="52" cy="52" rx="3" ry="2" fill="#2d2d2d"/>
+    <!-- === THE ICONIC HAT - Camo Army Cap === -->
+    <path d="M28 55 Q30 35 55 28 Q80 32 82 52 L28 55 Z" fill="#4a5c3c"/>
+    <!-- Hat brim -->
+    <ellipse cx="55" cy="55" rx="32" ry="10" fill="#5a6c4c"/>
+    <!-- Extended brim shadow -->
+    <path d="M82 50 Q100 52 95 62 Q85 68 80 58" fill="#3a4c2c"/>
+    <!-- Camo pattern on hat -->
+    <ellipse cx="45" cy="42" rx="8" ry="5" fill="#3a4a2a" opacity="0.6"/>
+    <ellipse cx="65" cy="38" rx="6" ry="4" fill="#5a6a4a" opacity="0.5"/>
+    <ellipse cx="55" cy="48" rx="5" ry="3" fill="#4a5a3a" opacity="0.5"/>
     
-    <!-- Eyebrows (intense) -->
-    <path d="M34 48 Q38 46 42 48" stroke="#5d4c3a" stroke-width="2" fill="none"/>
-    <path d="M48 48 Q52 46 56 48" stroke="#5d4c3a" stroke-width="2" fill="none"/>
+    <!-- === FACE - Intense concentration === -->
     
-    <!-- Nose -->
-    <path d="M45 53 Q47 58 45 60" stroke="#a08060" stroke-width="2" fill="none"/>
+    <!-- Eyebrows - furrowed, intense -->
+    <path d="M38 52 Q45 48 52 52" stroke="#6d5040" stroke-width="3" fill="none"/>
+    <path d="M58 52 Q65 48 72 52" stroke="#6d5040" stroke-width="3" fill="none"/>
     
-    <!-- Mouth (gritting teeth with effort) -->
-    <path d="M40 67 Q45 70 50 67" stroke="#8B4513" stroke-width="2" fill="none"/>
+    <!-- Eyes - squinting with effort -->
+    <ellipse cx="45" cy="58" rx="5" ry="3" fill="#1a1a1a"/>
+    <ellipse cx="65" cy="58" rx="5" ry="3" fill="#1a1a1a"/>
+    <!-- Eye whites peeking -->
+    <ellipse cx="44" cy="58" rx="2" ry="1.5" fill="#ffffff" opacity="0.3"/>
+    <ellipse cx="64" cy="58" rx="2" ry="1.5" fill="#ffffff" opacity="0.3"/>
     
-    <!-- Stubble/5 o'clock shadow -->
-    <g fill="#8B7355" opacity="0.3">
-      <circle cx="38" cy="70" r="1"/>
-      <circle cx="42" cy="72" r="1"/>
-      <circle cx="48" cy="72" r="1"/>
-      <circle cx="52" cy="70" r="1"/>
-      <circle cx="40" cy="74" r="1"/>
-      <circle cx="50" cy="74" r="1"/>
+    <!-- Nose - prominent -->
+    <path d="M55 58 Q58 68 55 75 Q52 72 53 68" fill="#c49464"/>
+    <ellipse cx="52" cy="74" rx="3" ry="2" fill="#b48454" opacity="0.5"/>
+    <ellipse cx="58" cy="74" rx="3" ry="2" fill="#b48454" opacity="0.5"/>
+    
+    <!-- Mouth - gritting teeth, narrating "Cinderella story..." -->
+    <path d="M45 85 Q55 92 65 85" stroke="#8B4513" stroke-width="2" fill="none"/>
+    <!-- Teeth showing -->
+    <rect x="48" y="84" width="14" height="5" rx="1" fill="#f5f5dc"/>
+    <line x1="52" y1="84" x2="52" y2="89" stroke="#ddd" stroke-width="0.5"/>
+    <line x1="55" y1="84" x2="55" y2="89" stroke="#ddd" stroke-width="0.5"/>
+    <line x1="58" y1="84" x2="58" y2="89" stroke="#ddd" stroke-width="0.5"/>
+    
+    <!-- 5 o'clock shadow / stubble -->
+    <g fill="#8d7060" opacity="0.4">
+      <circle cx="42" cy="80" r="1"/><circle cx="46" cy="82" r="1"/>
+      <circle cx="50" cy="83" r="1"/><circle cx="54" cy="84" r="0.8"/>
+      <circle cx="58" cy="83" r="1"/><circle cx="62" cy="82" r="1"/>
+      <circle cx="66" cy="80" r="1"/><circle cx="44" cy="78" r="0.8"/>
+      <circle cx="64" cy="78" r="0.8"/><circle cx="48" cy="90" r="1"/>
+      <circle cx="55" cy="92" r="1"/><circle cx="62" cy="90" r="1"/>
+    </g>
+    
+    <!-- Sweat drops -->
+    <ellipse cx="78" cy="55" rx="2" ry="3" fill="#87CEEB" opacity="0.6"/>
+    <ellipse cx="32" cy="62" rx="1.5" ry="2.5" fill="#87CEEB" opacity="0.5"/>
+    
+  </g>
+  
+  <!-- ========== FLYING DESTRUCTION ========== -->
+  
+  <!-- Flying flowers - the chaos! -->
+  <g class="flying-flowers">
+    <use href="#mum-full" transform="translate(250, 180) scale(0.6) rotate(35)"/>
+    <use href="#mum-full" transform="translate(210, 150) scale(0.5) rotate(-25)"/>
+    <use href="#mum-full" transform="translate(280, 140) scale(0.45) rotate(60)"/>
+    <use href="#mum-full" transform="translate(230, 210) scale(0.55) rotate(-45)"/>
+    <use href="#mum-full" transform="translate(195, 190) scale(0.4) rotate(80)"/>
+  </g>
+  
+  <!-- Flying petals - explosion of red -->
+  <g class="flying-petals">
+    <use href="#petal" transform="translate(240, 200) rotate(55) scale(1.2)"/>
+    <use href="#petal" transform="translate(265, 170) rotate(-30) scale(0.9)"/>
+    <use href="#petal" transform="translate(225, 240) rotate(120) scale(1.1)"/>
+    <use href="#petal" transform="translate(290, 195) rotate(-60) scale(0.8)"/>
+    <use href="#petal" transform="translate(200, 175) rotate(85) scale(1)"/>
+    <use href="#petal" transform="translate(305, 165) rotate(25) scale(0.7)"/>
+    <use href="#petal" transform="translate(248, 130) rotate(-75) scale(0.9)"/>
+    <use href="#petal" transform="translate(275, 225) rotate(140) scale(1)"/>
+    <use href="#petal" transform="translate(185, 210) rotate(45) scale(0.85)"/>
+    <use href="#petal" transform="translate(310, 200) rotate(-15) scale(0.75)"/>
+    <use href="#petal" transform="translate(220, 160) rotate(100) scale(0.95)"/>
+    <use href="#petal" transform="translate(260, 250) rotate(-85) scale(1.1)"/>
+    <!-- More chaos -->
+    <use href="#petal" transform="translate(235, 120) rotate(70) scale(0.7)"/>
+    <use href="#petal" transform="translate(295, 145) rotate(-40) scale(0.8)"/>
+    <use href="#petal" transform="translate(175, 195) rotate(110) scale(0.9)"/>
+  </g>
+  
+  <!-- Dirt and debris -->
+  <g class="dirt-chunks">
+    <circle cx="245" cy="265" r="5" fill="#5D4037"/>
+    <circle cx="260" cy="240" r="4" fill="#4E342E"/>
+    <circle cx="230" cy="280" r="6" fill="#6D4C41"/>
+    <circle cx="285" cy="255" r="4" fill="#5D4037"/>
+    <circle cx="215" cy="250" r="3" fill="#4E342E"/>
+    <circle cx="270" cy="275" r="5" fill="#5D4037"/>
+    <circle cx="300" cy="245" r="3" fill="#6D4C41"/>
+    <!-- Smaller debris -->
+    <circle cx="250" cy="230" r="2" fill="#795548"/>
+    <circle cx="275" cy="215" r="2" fill="#795548"/>
+    <circle cx="235" cy="255" r="2" fill="#795548"/>
+    <circle cx="295" cy="230" r="2" fill="#795548"/>
+  </g>
+  
+  <!-- Grass clippings flying -->
+  <g stroke="#4a7c4e" stroke-width="2" stroke-linecap="round" fill="none">
+    <path d="M250 220 Q255 212 252 205"/>
+    <path d="M270 195 Q278 185 274 178"/>
+    <path d="M235 245 Q242 235 238 228"/>
+    <path d="M295 220 Q302 210 298 202"/>
+    <path d="M215 230 Q220 222 217 215"/>
+    <path d="M280 240 Q288 230 284 222"/>
+  </g>
+  
+  <!-- Motion arc lines - showing the swing path -->
+  <g stroke="#E8D564" stroke-width="2" opacity="0.5" fill="none" stroke-dasharray="8,4">
+    <path d="M200 290 Q240 250 280 270"/>
+    <path d="M190 305 Q225 270 260 285"/>
+  </g>
+  
+  <!-- Impact burst effect -->
+  <g transform="translate(255, 280)" filter="url(#glow)">
+    <circle r="15" fill="#FFD93D" opacity="0.4"/>
+    <circle r="10" fill="#FFF176" opacity="0.6"/>
+    <!-- Burst lines -->
+    <g stroke="#FFD93D" stroke-width="2" opacity="0.7">
+      <line x1="0" y1="-20" x2="0" y2="-35"/>
+      <line x1="14" y1="-14" x2="24" y2="-24"/>
+      <line x1="20" y1="0" x2="35" y2="0"/>
+      <line x1="14" y1="14" x2="24" y2="24"/>
+      <line x1="-14" y1="-14" x2="-24" y2="-24"/>
+      <line x1="-20" y1="0" x2="-35" y2="0"/>
+      <line x1="-14" y1="14" x2="-24" y2="24"/>
     </g>
   </g>
   
-  <!-- Flying debris - flowers, petals, dirt -->
-  <g class="debris">
-    <!-- Flying mum 1 -->
-    <use href="#mum" transform="translate(260, 200) scale(0.5) rotate(45)"/>
-    
-    <!-- Flying mum 2 -->
-    <use href="#mum" transform="translate(220, 170) scale(0.4) rotate(-30)"/>
-    
-    <!-- Flying petals -->
-    <use href="#petal" transform="translate(240, 220) rotate(60)"/>
-    <use href="#petal" transform="translate(270, 190) rotate(-20)"/>
-    <use href="#petal" transform="translate(230, 250) rotate(120)"/>
-    <use href="#petal" transform="translate(290, 230) rotate(-45)"/>
-    <use href="#petal" transform="translate(200, 200) rotate(80)"/>
-    <use href="#petal" transform="translate(310, 180) rotate(30)"/>
-    <use href="#petal" transform="translate(250, 150) rotate(-70)"/>
-    <use href="#petal" transform="translate(280, 260) rotate(150)"/>
-    
-    <!-- Flying dirt clumps -->
-    <use href="#dirt" transform="translate(245, 280)"/>
-    <use href="#dirt" transform="translate(265, 250) scale(0.7)"/>
-    <use href="#dirt" transform="translate(230, 300) scale(1.2)"/>
-    <use href="#dirt" transform="translate(290, 270) scale(0.8)"/>
-    <use href="#dirt" transform="translate(210, 260) scale(0.6)"/>
-    
-    <!-- Grass clippings -->
-    <g stroke="#4a7c4e" stroke-width="2" fill="none">
-      <path d="M255 240 Q260 235 258 230"/>
-      <path d="M275 215 Q280 210 277 205"/>
-      <path d="M235 265 Q240 258 237 252"/>
-      <path d="M300 240 Q305 232 302 226"/>
-    </g>
+  <!-- "CINDERELLA STORY" speech bubble hint -->
+  <g transform="translate(45, 40)">
+    <ellipse cx="50" cy="25" rx="48" ry="22" fill="#f5f5dc" stroke="#8B7355" stroke-width="2"/>
+    <path d="M85 40 Q90 55 75 50" fill="#f5f5dc" stroke="#8B7355" stroke-width="2"/>
+    <text x="50" y="22" font-family="'Special Elite', monospace" font-size="9" fill="#3d3020" text-anchor="middle">
+      <tspan x="50" dy="0">"Cinderella story...</tspan>
+      <tspan x="50" dy="11">outta nowhere..."</tspan>
+    </text>
   </g>
   
-  <!-- Motion lines for drama -->
-  <g stroke="#E8D564" stroke-width="2" opacity="0.6" fill="none">
-    <path d="M200 300 Q230 280 250 290"/>
-    <path d="M190 310 Q215 295 235 305"/>
-    <path d="M180 320 Q200 310 220 318"/>
+  <!-- Dramatic "WHACK!" -->
+  <g transform="translate(295, 120)">
+    <!-- Shadow/outline -->
+    <text font-family="'Bangers', Impact, sans-serif" font-size="32" fill="none" stroke="#1a1a1a" stroke-width="6" transform="rotate(-12)">WHACK!</text>
+    <!-- Red outline -->
+    <text font-family="'Bangers', Impact, sans-serif" font-size="32" fill="none" stroke="#9E2A2A" stroke-width="3" transform="rotate(-12)">WHACK!</text>
+    <!-- Yellow fill -->
+    <text font-family="'Bangers', Impact, sans-serif" font-size="32" fill="#E8D564" transform="rotate(-12)">WHACK!</text>
   </g>
-  
-  <!-- "WHACK!" effect text -->
-  <text x="280" y="140" font-family="Bangers, Impact, sans-serif" font-size="36" fill="#E8D564" transform="rotate(-15, 280, 140)">
-    <tspan stroke="#9E2A2A" stroke-width="3">WHACK!</tspan>
-  </text>
-  <text x="280" y="140" font-family="Bangers, Impact, sans-serif" font-size="36" fill="#E8D564" transform="rotate(-15, 280, 140)">WHACK!</text>
   
 </svg>
