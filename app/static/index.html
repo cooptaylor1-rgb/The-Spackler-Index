@@ -458,24 +458,27 @@
         
         /* Gopher icon image styling */
         .gopher-icon {
-            width: 1em;
-            height: 1em;
+            width: 1.2em;
+            height: 1.2em;
             vertical-align: middle;
             display: inline-block;
+            border-radius: 3px;
+            object-fit: cover;
         }
         
         .gopher-icon-large {
             width: 3.5rem;
             height: 3.5rem;
+            border-radius: 6px;
         }
         
         /* Gopher popup that appears randomly */
         .gopher-popup {
             position: fixed;
-            bottom: -80px;
+            bottom: -100px;
             right: 50px;
-            width: 4rem;
-            height: 4rem;
+            width: 5rem;
+            height: 5rem;
             z-index: 1000;
             transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             cursor: pointer;
@@ -485,6 +488,8 @@
         .gopher-popup img {
             width: 100%;
             height: 100%;
+            border-radius: 8px;
+            object-fit: cover;
         }
         
         .gopher-popup.active {
@@ -1567,11 +1572,12 @@
             width: 2.5rem;
             height: 2.5rem;
             margin: 0 auto 10px auto;
-            background-image: url('/static/images/gopher.svg');
+            background-image: url('/static/images/gopher.jpg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             animation: wiggle 0.5s ease-in-out infinite;
+            border-radius: 4px;
         }
         
         body.serious-mode .loading::before {
@@ -4252,7 +4258,7 @@
     <!-- GOPHER COMMAND CENTER - The Real Star -->
     <div class="gopher-hole" id="gopher-hole"></div>
     <div class="gopher-dirt" id="gopher-dirt"></div>
-    <div class="gopher-popup" id="gopher-popup"><img src="/static/images/gopher.svg" alt="Gopher"></div>
+    <div class="gopher-popup" id="gopher-popup"><img src="/static/images/gopher.jpg" alt="Gopher"></div>
     <div class="gopher-speech" id="gopher-speech"></div>
 
     <header>
@@ -4262,7 +4268,7 @@
             <p class="header-tagline caddyshack-only">"Cinderella story... out of nowhere... a former greenskeeper now tracking cheaters at Augusta."</p>
         </div>
         <button class="mode-toggle" id="mode-toggle" onclick="toggleMode()" title="Switch between Caddyshack and Serious mode">
-            <span class="mode-icon"><img src="/static/images/gopher.svg" alt="" class="gopher-icon"></span>
+            <span class="mode-icon"><img src="/static/images/gopher.jpg" alt="" class="gopher-icon"></span>
             <span class="mode-text">Gopher Mode</span>
         </button>
     </header>
