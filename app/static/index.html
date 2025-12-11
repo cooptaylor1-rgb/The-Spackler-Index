@@ -2862,6 +2862,167 @@
         body.serious-mode .history-panel {
             display: none;
         }
+        
+        /* Stats toggle button */
+        .stats-toggle {
+            position: fixed;
+            bottom: 330px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #20b2aa 0%, #008b8b 100%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stats-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        /* Stats panel */
+        .stats-panel {
+            position: fixed;
+            bottom: -400px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background: linear-gradient(180deg, #1a2a3a 0%, #0d1a26 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            transition: bottom 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
+            padding-bottom: 20px;
+        }
+        
+        .stats-panel.open {
+            bottom: 0;
+        }
+        
+        .stats-header {
+            background: linear-gradient(135deg, #20b2aa 0%, #008b8b 100%);
+            color: white;
+            padding: 15px;
+            font-family: var(--font-display);
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+        
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            padding: 15px 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .stat-box:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .stat-box.severe {
+            border-color: var(--explosives-red);
+            background: rgba(201, 76, 76, 0.1);
+        }
+        
+        .stat-box.clean {
+            border-color: var(--fairway-green);
+            background: rgba(46, 139, 87, 0.1);
+        }
+        
+        .stat-box .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-box .stat-number {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .stat-box .stat-label {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stats-chart {
+            padding: 0 20px 10px;
+        }
+        
+        .chart-title {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .chart-bars {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            height: 80px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-sm);
+        }
+        
+        .chart-bar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .chart-bar .bar {
+            width: 100%;
+            min-height: 5px;
+            border-radius: 3px 3px 0 0;
+            transition: height 0.5s ease;
+        }
+        
+        .chart-bar .bar-label {
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+        }
+        
+        .chart-bar .bar-count {
+            font-size: 0.7rem;
+            color: white;
+            font-weight: bold;
+        }
+        
+        body.serious-mode .stats-toggle,
+        body.serious-mode .stats-panel {
+            display: none;
+        }
 
         /* Achievement unlock notification */
         .achievement-notification {
@@ -4535,6 +4696,56 @@
         <span class="badge-count" id="historyCount">0</span>
     </button>
     
+    <!-- 📊 STATS TOGGLE -->
+    <button class="stats-toggle caddyshack-only" id="statsToggle" title="Quick Stats Dashboard" onclick="toggleStatsPanel()">
+        📊
+    </button>
+    
+    <!-- 📊 STATS PANEL -->
+    <div class="stats-panel" id="statsPanel">
+        <div class="stats-header">
+            📊 SPACKLER STATS
+        </div>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-icon">🔍</div>
+                <div class="stat-number" id="statsTotal">0</div>
+                <div class="stat-label">Total Analyses</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-number" id="statsAvgScore">--</div>
+                <div class="stat-label">Avg Score</div>
+            </div>
+            <div class="stat-box severe">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-number" id="statsSevere">0</div>
+                <div class="stat-label">Severe Finds</div>
+            </div>
+            <div class="stat-box clean">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number" id="statsClean">0</div>
+                <div class="stat-label">Clean Golfers</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">📋</div>
+                <div class="stat-number" id="statsWatched">0</div>
+                <div class="stat-label">On Watchlist</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">🚩</div>
+                <div class="stat-number" id="statsTotalFlags">0</div>
+                <div class="stat-label">Red Flags Found</div>
+            </div>
+        </div>
+        <div class="stats-chart">
+            <div class="chart-title">Risk Level Breakdown</div>
+            <div class="chart-bars" id="riskChart">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+    
     <div class="achievements-panel" id="achievementsPanel">
         <div class="achievements-header">
             SPACKLER'S LICENSE BUREAU
@@ -5959,10 +6170,95 @@
                 localStorage.setItem('spackler_history', '[]');
                 showGopherQuip("History cleared. No evidence left behind.");
                 updateHistoryPanel();
+                updateStatsPanel();
             }
         }
         
-        // �📤 Share Roast function
+        // Toggle stats panel
+        function toggleStatsPanel() {
+            const panel = document.getElementById('statsPanel');
+            panel.classList.toggle('open');
+            
+            if (panel.classList.contains('open')) {
+                updateStatsPanel();
+            }
+        }
+        
+        // Update stats panel
+        function updateStatsPanel() {
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem('spackler_history') || '[]');
+            } catch (e) {
+                history = [];
+            }
+            
+            let watchlist = [];
+            try {
+                watchlist = JSON.parse(localStorage.getItem('spackler_watchlist') || '[]');
+            } catch (e) {
+                watchlist = [];
+            }
+            
+            // Calculate stats
+            const total = history.length;
+            let avgScore = 0;
+            let severeCount = 0;
+            let highCount = 0;
+            let moderateCount = 0;
+            let lowCount = 0;
+            let totalFlags = 0;
+            
+            history.forEach(item => {
+                const score = parseFloat(item.score);
+                avgScore += score;
+                totalFlags += item.redFlags || 0;
+                
+                if (score >= 75) severeCount++;
+                else if (score >= 50) highCount++;
+                else if (score >= 25) moderateCount++;
+                else lowCount++;
+            });
+            
+            avgScore = total > 0 ? (avgScore / total).toFixed(1) : '--';
+            
+            // Update DOM
+            document.getElementById('statsTotal').textContent = total;
+            document.getElementById('statsAvgScore').textContent = avgScore;
+            document.getElementById('statsSevere').textContent = severeCount;
+            document.getElementById('statsClean').textContent = lowCount;
+            document.getElementById('statsWatched').textContent = watchlist.length;
+            document.getElementById('statsTotalFlags').textContent = totalFlags;
+            
+            // Update chart
+            const maxCount = Math.max(severeCount, highCount, moderateCount, lowCount, 1);
+            const chartContainer = document.getElementById('riskChart');
+            
+            chartContainer.innerHTML = `
+                <div class="chart-bar">
+                    <div class="bar-count">${lowCount}</div>
+                    <div class="bar" style="height: ${(lowCount / maxCount) * 100}%; background: var(--fairway-green);"></div>
+                    <div class="bar-label">Low</div>
+                </div>
+                <div class="chart-bar">
+                    <div class="bar-count">${moderateCount}</div>
+                    <div class="bar" style="height: ${(moderateCount / maxCount) * 100}%; background: #f0ad4e;"></div>
+                    <div class="bar-label">Mod</div>
+                </div>
+                <div class="chart-bar">
+                    <div class="bar-count">${highCount}</div>
+                    <div class="bar" style="height: ${(highCount / maxCount) * 100}%; background: var(--grass-yellow);"></div>
+                    <div class="bar-label">High</div>
+                </div>
+                <div class="chart-bar">
+                    <div class="bar-count">${severeCount}</div>
+                    <div class="bar" style="height: ${(severeCount / maxCount) * 100}%; background: var(--explosives-red);"></div>
+                    <div class="bar-label">Severe</div>
+                </div>
+            `;
+        }
+        
+        // 📤 Share Roast function
         function shareRoast() {
             const golferName = document.getElementById('sand-golfer-name').textContent.split('(')[0].trim();
             const riskScore = document.getElementById('risk-score-display').textContent;
@@ -6541,6 +6837,7 @@
             refreshCarlTip();
             updateWatchlistPanel();
             updateHistoryPanel();
+            updateStatsPanel();
         }
         
         // Carl's random tips for the tip banner
