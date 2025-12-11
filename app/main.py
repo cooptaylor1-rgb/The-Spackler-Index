@@ -120,6 +120,24 @@ async def root():
     }
 
 
+@app.get("/manifest.json", include_in_schema=False)
+async def manifest():
+    """Serve PWA manifest from root for proper scope."""
+    manifest_path = static_path / "manifest.json"
+    if manifest_path.exists():
+        return FileResponse(str(manifest_path), media_type="application/manifest+json")
+    return {"error": "Manifest not found"}
+
+
+@app.get("/sw.js", include_in_schema=False)
+async def service_worker():
+    """Serve service worker from root for proper scope."""
+    sw_path = static_path / "sw.js"
+    if sw_path.exists():
+        return FileResponse(str(sw_path), media_type="application/javascript")
+    return {"error": "Service worker not found"}
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
