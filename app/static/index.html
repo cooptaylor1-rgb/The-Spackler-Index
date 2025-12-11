@@ -215,22 +215,21 @@
         }
         
         .splash-silhouette {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
+            width: 280px;
+            max-width: 85vw;
+            border-radius: 12px;
             overflow: hidden;
             border: 4px solid var(--grass-yellow);
-            box-shadow: 0 0 30px rgba(232, 213, 100, 0.5), 0 0 60px rgba(232, 213, 100, 0.3);
+            box-shadow: 0 0 30px rgba(232, 213, 100, 0.5), 0 0 60px rgba(232, 213, 100, 0.3), 0 8px 32px rgba(0,0,0,0.4);
             animation: sway 3s ease-in-out infinite;
             margin-bottom: 20px;
-            background: var(--bushwood-green);
+            background: #f5f0e1;
         }
         
         .splash-silhouette img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center center;
+            height: auto;
+            display: block;
         }
         
         @keyframes sway {
@@ -4200,13 +4199,12 @@
         <div class="splash-explosion">💥</div>
         <div class="splash-explosion">💥</div>
         <div class="splash-explosion">💥</div>
-        <div class="splash-silhouette"><img src="/static/images/carl-mums.svg" alt="Carl Spackler hitting mums"></div>
-        <div class="splash-logo">SPACKLER'S HANDICAP TRACKER</div>
+        <div class="splash-silhouette"><img src="/static/images/spackler-logo.jpg" alt="Spackler Index - Keeping Golf Honest Since 1980"></div>
         <div class="splash-tagline">
-            "A looper... you know, a caddy... tracking sandbaggers since 1980."
+            "A looper... you know, a caddy... big hitter, the Lama."
         </div>
         <div class="splash-buttons">
-            <button class="btn-dynamite" onclick="enterApp()">ENTER THE LAIR</button>
+            <button class="btn-dynamite" onclick="enterApp()">CHECK A SANDBAGGER</button>
             <button class="btn-clipboard" onclick="enterApp()">View Tournament Reports</button>
         </div>
     </div>
