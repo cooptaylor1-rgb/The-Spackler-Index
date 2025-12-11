@@ -23,7 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from app.config import settings
-from app.routes import golf_router, team_router
+from app.routes import golf_router, team_router, config_router
 from app.middleware import SimpleCacheMiddleware
 
 # Configure logging
@@ -98,6 +98,7 @@ async def add_performance_metrics(request: Request, call_next):
 # Include API routers
 app.include_router(golf_router, prefix=settings.API_PREFIX, tags=["Individual Golf"])
 app.include_router(team_router, prefix=settings.API_PREFIX, tags=["Team Golf"])
+app.include_router(config_router, prefix=settings.API_PREFIX, tags=["Configuration"])
 
 # Mount static files for the web UI
 static_path = Path(__file__).parent / "static"

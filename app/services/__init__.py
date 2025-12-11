@@ -35,6 +35,14 @@ from .sandbagging import (
     generate_recommendation,
 )
 
+from .suspicion_engine import (
+    SuspicionScoringEngine,
+    SuspicionResult,
+    SuspicionReason,
+    FlagType,
+    FlagSeverity,
+)
+
 __all__ = [
     # Individual probability functions
     "compute_course_handicap",
@@ -65,5 +73,11 @@ __all__ = [
     "detect_all_scores_better_than_expected",
     "generate_sandbagging_summary",
     "generate_recommendation",
+    # Enhanced suspicion engine
+    "SuspicionScoringEngine",
+    "SuspicionResult",
+    "SuspicionReason",
+    "FlagType",
+    "FlagSeverity",
 ]
 
