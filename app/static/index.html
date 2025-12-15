@@ -3359,6 +3359,66 @@
         body.serious-mode .help-toggle {
             display: none;
         }
+
+        /* Quiet mode banner */
+        .quiet-mode-banner {
+            background: var(--paper-aged);
+            border: 2px solid var(--dirt-brown);
+            box-shadow: var(--shadow-md);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin: 15px auto 0;
+            max-width: 900px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .quiet-mode-banner .quiet-icon {
+            font-size: 1.4rem;
+        }
+
+        .quiet-mode-banner .quiet-copy {
+            flex: 1;
+        }
+
+        .quiet-mode-banner .quiet-copy strong {
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .quiet-mode-banner .quiet-copy span {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .quiet-mode-banner button {
+            background: var(--bushwood-green);
+            color: white;
+            border: 2px solid var(--grass-yellow);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            box-shadow: var(--shadow-sm);
+            min-width: 120px;
+        }
+
+        .quiet-mode-banner button:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .quiet-mode-banner button:active {
+            transform: translateY(0);
+        }
+
+        body.quiet-mode #gopher-popup,
+        body.quiet-mode #gopher-speech {
+            display: none !important;
+        }
         
         /* Shortcuts help overlay */
         .shortcuts-help {
@@ -3690,6 +3750,12 @@
             /* Sound toggle repositioning */
             .sound-toggle {
                 display: none; /* Hide on mobile */
+            }
+
+            .quiet-mode-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
             }
             
             /* HIDE the toggle buttons on mobile - too cluttered */
@@ -4461,6 +4527,15 @@
             <span class="mode-text">Gopher Mode</span>
         </button>
     </header>
+
+    <div class="quiet-mode-banner" id="quietModeBanner">
+        <div class="quiet-icon" aria-hidden="true">🧘‍♂️</div>
+        <div class="quiet-copy">
+            <strong id="quietModeStatus">Quiet mode keeps pop-ups from blocking the UI.</strong>
+            <span id="quietModeDetail">Auto-enabled on iPhone to keep the experience clean.</span>
+        </div>
+        <button type="button" id="quietModeToggle">Let pop-ups through</button>
+    </div>
 
     <div class="container">
         <!-- Carl's Tip Banner -->
@@ -5748,18 +5823,33 @@
         
         // Initialize app on load
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if splash was already shown this session
-            if (!sessionStorage.getItem('splash_shown')) {
-                document.getElementById('splash-screen').style.display = 'flex';
-            } else {
-                document.getElementById('splash-screen').classList.add('hidden');
+            const splash = document.getElementById('splash-screen');
+            const firstVisit = !sessionStorage.getItem('splash_shown');
+
+            applyQuietModeState();
+
+            if (firstVisit && splash) {
+                // On iOS/mobile, don't block the UI with the splash screen—enter immediately.
+                if (isIosDevice() || isQuietMode()) {
+                    enterApp();
+                } else {
+                    splash.style.display = 'flex';
+                    // Auto-dismiss after a short delay so the app isn't stuck behind the splash.
+                    setTimeout(() => {
+                        if (!sessionStorage.getItem('splash_shown')) {
+                            enterApp();
+                        }
+                    }, 2000);
+                }
+            } else if (splash) {
+                splash.classList.add('hidden');
             }
-            
+
             applyMode(currentMode);
             initializeApp();
-            
+
             // Start gopher popup timer (only in Caddyshack mode)
-            if (currentMode === 'caddyshack') {
+            if (currentMode === 'caddyshack' && !isQuietMode()) {
                 scheduleGopherPopup();
             }
         });
@@ -5769,10 +5859,10 @@
             const splash = document.getElementById('splash-screen');
             splash.classList.add('hidden');
             sessionStorage.setItem('splash_shown', 'true');
-            
+
             // Show welcome gopher after a delay with random welcome quip
             setTimeout(() => {
-                if (currentMode === 'caddyshack') {
+                if (currentMode === 'caddyshack' && !isQuietMode()) {
                     showGopherQuip(getQuote('welcome'), 'happy');
                 }
             }, 1500);
@@ -5801,9 +5891,13 @@
         let currentGopherMood = GOPHER_MOODS.IDLE;
         
         function scheduleGopherPopup() {
+            if (isQuietMode()) return;
+
             // Random interval between 30-90 seconds
             const delay = (30 + Math.random() * 60) * 1000;
             setTimeout(() => {
+                if (isQuietMode()) return;
+
                 if (currentMode === 'caddyshack' && !document.body.classList.contains('serious-mode')) {
                     // Random moods for random popups
                     const randomMoods = [GOPHER_MOODS.IDLE, GOPHER_MOODS.SUSPICIOUS, GOPHER_MOODS.ALERT];
@@ -5815,6 +5909,8 @@
         }
         
         function showGopherQuip(customQuip = null, mood = GOPHER_MOODS.IDLE, speechStyle = SPEECH_STYLES.normal) {
+            if (isQuietMode()) return;
+
             const gopher = document.getElementById('gopher-popup');
             const speech = document.getElementById('gopher-speech');
             const hole = document.getElementById('gopher-hole');
@@ -7337,11 +7433,82 @@
         
         // Initialize achievements toggle button
         document.getElementById('achievementsToggle')?.addEventListener('click', toggleAchievementsPanel);
-        
+
         // ============================================
         // 🎉 CELEBRATION EFFECTS - Confetti & Particles
         // ============================================
         
+        // Quiet mode guards non-essential pop-ups on mobile
+        const QUIET_MODE_KEY = 'spackler_quiet_mode';
+        let quietMode = getQuietModePreference();
+
+        function isMobileViewport() {
+            return window.matchMedia('(max-width: 768px)').matches || isIosDevice();
+        }
+
+        function getQuietModePreference() {
+            const stored = localStorage.getItem(QUIET_MODE_KEY);
+            if (stored === null) {
+                // Default to quiet on mobile/iOS to avoid overlays blocking the UI
+                return isMobileViewport();
+            }
+            return stored === 'true';
+        }
+
+        function isQuietMode() {
+            return quietMode;
+        }
+
+        function hideGopherPopup() {
+            const gopher = document.getElementById('gopher-popup');
+            const speech = document.getElementById('gopher-speech');
+            if (gopher) {
+                gopher.className = 'gopher-popup';
+            }
+            if (speech) {
+                speech.className = 'gopher-speech';
+            }
+        }
+
+        function applyQuietModeState() {
+            document.body.classList.toggle('quiet-mode', quietMode);
+            const status = document.getElementById('quietModeStatus');
+            const detail = document.getElementById('quietModeDetail');
+            const toggle = document.getElementById('quietModeToggle');
+
+            if (status) {
+                status.textContent = quietMode
+                    ? 'Quiet mode is ON — pop-ups stay out of your way.'
+                    : 'Quiet mode is OFF — playful pop-ups may appear.';
+            }
+
+            if (detail) {
+                detail.textContent = quietMode
+                    ? 'Optimized for iPhone: splash, welcome, and gopher overlays stay silent.'
+                    : 'You will see splash, welcome, and gopher overlays again.';
+            }
+
+            if (toggle) {
+                toggle.textContent = quietMode ? 'Allow pop-ups' : 'Silence pop-ups';
+                toggle.setAttribute('aria-pressed', quietMode ? 'true' : 'false');
+                toggle.title = quietMode ? 'Let the fun overlays back in' : 'Keep the UI distraction-free';
+            }
+
+            if (quietMode) {
+                hideGopherPopup();
+            }
+        }
+
+        function setQuietMode(enabled) {
+            quietMode = enabled;
+            localStorage.setItem(QUIET_MODE_KEY, enabled);
+            applyQuietModeState();
+
+            if (!quietMode && currentMode === 'caddyshack') {
+                scheduleGopherPopup();
+            }
+        }
+
         // Sound system state
         let soundEnabled = localStorage.getItem('spackler_sound') !== 'false';
         
@@ -7353,6 +7520,17 @@
             toggle.textContent = soundEnabled ? '🔊' : '🔇';
             toggle.classList.toggle('muted', !soundEnabled);
             showGopherQuip(soundEnabled ? "Sound's back! Let's make some noise." : "Going stealth mode. Silent but deadly.");
+        });
+
+        document.getElementById('quietModeToggle')?.addEventListener('click', () => {
+            const nextState = !isQuietMode();
+            setQuietMode(nextState);
+
+            if (nextState) {
+                // Ensure any lingering pop-ups are cleared as soon as quiet mode is enabled.
+                dismissWelcome();
+                hideGopherPopup();
+            }
         });
         
         // Create confetti celebration
@@ -7516,6 +7694,16 @@
         // 🆕 FIRST-TIME USER EXPERIENCE
         function checkFirstTimeUser() {
             const hasSeenWelcome = localStorage.getItem('spackler_seen_welcome');
+            const smallViewport = window.matchMedia('(max-width: 768px)').matches;
+
+            // Skip blocking modals on small/iOS screens or when quiet mode is enabled.
+            if (isIosDevice() || smallViewport || isQuietMode()) {
+                if (!hasSeenWelcome) {
+                    localStorage.setItem('spackler_seen_welcome', 'true');
+                }
+                return;
+            }
+
             if (!hasSeenWelcome) {
                 // Show welcome modal after splash screen dismisses
                 setTimeout(() => {
