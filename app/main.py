@@ -108,10 +108,15 @@ if static_path.exists():
 
 @app.get("/", include_in_schema=False)
 async def root():
-    """Serve the main web UI."""
+    """Serve the main web UI with no-cache headers for PWA freshness."""
     index_path = static_path / "index.html"
     if index_path.exists():
-        return FileResponse(str(index_path))
+        response = FileResponse(str(index_path))
+        # Critical: Prevent iOS home-screen PWA from caching stale HTML
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
     return {
         "message": "Golf Scoring Probability Engine",
         "version": settings.APP_VERSION,
@@ -131,14 +136,44 @@ async def manifest():
 
 @app.get("/sw.js", include_in_schema=False)
 async def service_worker():
-    """Serve service worker from root for proper scope."""
+    """Serve service worker from root with no-cache headers."""
     sw_path = static_path / "sw.js"
     if sw_path.exists():
-        return FileResponse(str(sw_path), media_type="application/javascript")
+        response = FileResponse(str(sw_path), media_type="application/javascript")
+        # Always check for updated service worker
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        return response
     return {"error": "Service worker not found"}
+
+
+@app.get("/api/version", include_in_schema=False)
+async def get_version():
+    """
+    Version endpoint for PWA update detection.
+    
+    iOS home-screen PWAs check this endpoint to detect new deployments.
+    Returns build version (git SHA or timestamp) that changes on each deploy.
+    """
+    from fastapi.responses import JSONResponse
+    
+    response = JSONResponse({
+        "version": settings.APP_VERSION,
+        "build": settings.BUILD_VERSION,
+        "buildTime": settings.BUILD_TIME,
+    })
+    # Never cache version - must always hit server
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "version": settings.APP_VERSION}
+    return {
+        "status": "healthy", 
+        "version": settings.APP_VERSION,
+        "build": settings.BUILD_VERSION,
+    }
