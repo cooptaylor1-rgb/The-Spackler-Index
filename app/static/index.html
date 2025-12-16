@@ -7977,10 +7977,11 @@
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            const tabIndex = tabName === 'individual' ? 1 : 
-                            (tabName === 'team' ? 2 : 
-                            (tabName === 'consecutive' ? 3 : 
-                            (tabName === 'completed' ? 4 : 5)));
+            // Tab order: sandbagging(1), individual(2), team(3), consecutive(4), completed(5)
+            const tabIndex = tabName === 'sandbagging' ? 1 :
+                            (tabName === 'individual' ? 2 : 
+                            (tabName === 'team' ? 3 : 
+                            (tabName === 'consecutive' ? 4 : 5)));
             document.querySelector(`.tab:nth-child(${tabIndex})`).classList.add('active');
             document.getElementById(`${tabName}-tab`).classList.add('active');
             
