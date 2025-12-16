@@ -9014,9 +9014,11 @@
                 // Scroll to results smoothly
                 results.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (err) {
+                console.error('[Spackler] Analysis error:', err);
                 stopLoadingQuotes();
                 loading.classList.remove('active');
-                error.textContent = getQuote('error');
+                // Show actual error for debugging, with Carl's quote as fallback
+                error.textContent = err.message || getQuote('error');
                 error.style.display = 'block';
                 showGopherQuip(getQuote('error'), GOPHER_MOODS.SCARED, SPEECH_STYLES.danger);
             }
