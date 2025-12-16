@@ -4170,15 +4170,11 @@
                 font-size: 0.9rem;
             }
 
-            /* === FULL-WIDTH SLIDE PANELS === */
+            /* === HIDE ALL SLIDE PANELS ON MOBILE === */
             .watchlist-panel,
             .history-panel,
             .achievements-panel {
-                width: 100%;
-                right: -100%;
-                border-radius: 0;
-                top: 0;
-                height: 100%;
+                display: none !important;
             }
 
             /* === FOOTER === */
@@ -5650,49 +5646,6 @@
         <div class="achievements-list" id="achievementsList">
             <!-- Achievements will be populated by JS -->
         </div>
-    </div>
-    
-    <!-- 📋 WATCHLIST PANEL -->
-    <div class="watchlist-panel" id="watchlistPanel">
-        <div class="watchlist-header">
-            📋 NOONAN WATCHLIST
-        </div>
-        <div class="watchlist-empty" id="watchlistEmpty">
-            <p>No suspects yet...</p>
-            <p style="font-size: 0.85rem; opacity: 0.7;">Analyze golfers and add them to your watchlist.</p>
-        </div>
-        <div class="watchlist-items" id="watchlistItems">
-            <!-- Watchlist items populated by JS -->
-        </div>
-        <div class="watchlist-actions">
-            <button class="watchlist-export" onclick="exportWatchlist()" title="Export watchlist as JSON">
-                📤 Export
-            </button>
-            <button class="watchlist-import" onclick="document.getElementById('watchlistImport').click()" title="Import watchlist from JSON">
-                📥 Import
-            </button>
-            <input type="file" id="watchlistImport" accept=".json" style="display:none" onchange="importWatchlist(event)">
-        </div>
-        <button class="watchlist-clear" id="watchlistClear" onclick="clearWatchlist()">
-            🗑️ Clear Watchlist
-        </button>
-    </div>
-    
-    <!-- 📜 HISTORY PANEL -->
-    <div class="history-panel" id="historyPanel">
-        <div class="history-header">
-            📜 ANALYSIS HISTORY
-        </div>
-        <div class="history-empty" id="historyEmpty">
-            <p>No analyses yet...</p>
-            <p style="font-size: 0.85rem; opacity: 0.7;">Analyze golfers to build your history.</p>
-        </div>
-        <div class="history-items" id="historyItems">
-            <!-- History items populated by JS -->
-        </div>
-        <button class="history-clear" id="historyClear" onclick="clearHistory()">
-            🗑️ Clear History
-        </button>
     </div>
     
     <!-- Achievement Notification Popup -->
