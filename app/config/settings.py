@@ -6,7 +6,33 @@ Currently uses defaults suitable for development and GitHub Codespaces.
 """
 
 import os
+import subprocess
+from datetime import datetime, timezone
 from typing import Optional
+
+
+def get_build_version() -> str:
+    """Generate build version from git commit SHA or timestamp."""
+    # Try to get git commit SHA
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except Exception:
+        pass
+    
+    # Fallback to timestamp
+    return datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+
+
+def get_build_time() -> str:
+    """Get ISO timestamp for build time."""
+    return datetime.now(timezone.utc).isoformat()
 
 
 class Settings:
@@ -19,6 +45,10 @@ class Settings:
         "A professional-grade backend for calculating golf scoring probabilities "
         "based on GHIN Handicap Index, course setup, and statistical models."
     )
+    
+    # Build info (generated at startup)
+    BUILD_VERSION: str = os.getenv("BUILD_VERSION", get_build_version())
+    BUILD_TIME: str = os.getenv("BUILD_TIME", get_build_time())
     
     # Server settings
     HOST: str = os.getenv("HOST", "0.0.0.0")
