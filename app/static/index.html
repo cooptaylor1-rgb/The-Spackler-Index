@@ -9015,16 +9015,172 @@
             }
         });
         
-        // Register Service Worker for PWA
+        // ============================================
+        // PWA UPDATE SYSTEM FOR iOS HOME SCREEN
+        // ============================================
+        
+        // Version tracking for update detection
+        const PWA_UPDATE = {
+            localBuild: null,
+            remoteBuild: null,
+            lastCheck: null,
+            updateAvailable: false
+        };
+        
+        // Check server for new version
+        async function checkForAppUpdate() {
+            try {
+                const response = await fetch('/api/version', { 
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                if (!response.ok) return false;
+                
+                const data = await response.json();
+                PWA_UPDATE.remoteBuild = data.build;
+                PWA_UPDATE.lastCheck = new Date().toISOString();
+                
+                // Store local build on first check
+                if (!PWA_UPDATE.localBuild) {
+                    PWA_UPDATE.localBuild = data.build;
+                    localStorage.setItem('spackler_build', data.build);
+                    console.log('[PWA] Initial build:', data.build);
+                    return false;
+                }
+                
+                // Compare builds
+                if (PWA_UPDATE.localBuild !== PWA_UPDATE.remoteBuild) {
+                    console.log('[PWA] Update available:', PWA_UPDATE.localBuild, '->', PWA_UPDATE.remoteBuild);
+                    PWA_UPDATE.updateAvailable = true;
+                    return true;
+                }
+                
+                return false;
+            } catch (err) {
+                console.log('[PWA] Version check failed (offline?):', err.message);
+                return false;
+            }
+        }
+        
+        // Show update toast and reload
+        function showUpdateToast() {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.id = 'pwa-update-toast';
+            toast.innerHTML = `
+                <div style="
+                    position: fixed;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+                    color: white;
+                    padding: 16px 24px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                    z-index: 10000;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 15px;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    animation: slideUp 0.3s ease-out;
+                ">
+                    <span>🔄</span>
+                    <span>Updating to latest version...</span>
+                </div>
+            `;
+            
+            // Add animation keyframes
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(toast);
+            
+            // Reload after brief delay to show toast
+            setTimeout(() => {
+                // Clear local build to accept new version
+                localStorage.removeItem('spackler_build');
+                PWA_UPDATE.localBuild = null;
+                
+                // Force reload bypassing cache
+                window.location.reload(true);
+            }, 1000);
+        }
+        
+        // Register Service Worker with update handling
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('Spackler SW registered:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Spackler SW registration failed:', error);
+            window.addEventListener('load', async () => {
+                try {
+                    // Load stored build version
+                    PWA_UPDATE.localBuild = localStorage.getItem('spackler_build');
+                    
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('[PWA] SW registered:', registration.scope);
+                    
+                    // Check for SW updates periodically
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        console.log('[PWA] New SW installing...');
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('[PWA] New SW installed, update ready');
+                                // New SW ready - trigger update flow
+                                showUpdateToast();
+                            }
+                        });
                     });
+                    
+                    // CRITICAL: Auto-reload when new SW takes control
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        console.log('[PWA] New SW took control - reloading');
+                        if (!document.hidden) {
+                            window.location.reload();
+                        }
+                    });
+                    
+                    // Initial version check
+                    await checkForAppUpdate();
+                    
+                } catch (error) {
+                    console.log('[PWA] SW registration failed:', error);
+                }
+            });
+            
+            // Check for updates when app becomes visible (iOS home screen resume)
+            document.addEventListener('visibilitychange', async () => {
+                if (document.visibilityState === 'visible') {
+                    console.log('[PWA] App visible - checking for updates');
+                    
+                    // Check version endpoint
+                    const hasUpdate = await checkForAppUpdate();
+                    if (hasUpdate) {
+                        showUpdateToast();
+                        return;
+                    }
+                    
+                    // Also trigger SW update check
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    if (registration) {
+                        registration.update().catch(err => {
+                            console.log('[PWA] SW update check failed:', err.message);
+                        });
+                    }
+                }
+            });
+            
+            // Also check on page focus (belt and suspenders)
+            window.addEventListener('focus', async () => {
+                const hasUpdate = await checkForAppUpdate();
+                if (hasUpdate) {
+                    showUpdateToast();
+                }
             });
         }
     </script>
