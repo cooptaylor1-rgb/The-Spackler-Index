@@ -3989,11 +3989,20 @@
             .result-header {
                 flex-wrap: wrap;
                 gap: 8px;
+                border-bottom: 1px solid #e0e0e0; /* Clean line instead of dashed */
+                padding-bottom: 12px;
             }
             
             .result-header h4 {
                 font-size: var(--mobile-text-base);
                 flex: 1;
+            }
+            
+            /* Remove dashed borders on mobile for cleaner iOS look */
+            .tier-ruling,
+            .verdict-actions {
+                border: none;
+                border-top: 1px solid #e0e0e0;
             }
 
             .probability-badge {
@@ -5498,7 +5507,7 @@
             
             <!-- 📖 THE NARRATION - Carl's story of this player -->
             <div class="carl-narration caddyshack-only" id="carl-narration">
-                <div class="narration-avatar"><img src="/static/images/carl.jpg" alt="Carl Spackler"></div>
+                <div class="narration-avatar"><img src="/static/images/spackler-logo.jpg" alt="Carl Spackler" onerror="this.style.display='none'"></div>
                 <div class="narration-text" id="narration-text">
                     "Cinderella story, outta nowhere..."
                 </div>
